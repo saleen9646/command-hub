@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>APG Command Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   /* ============================================================
      APG COMMAND HUB — sized for iPad 10th gen (landscape) via Duet
@@ -126,6 +128,119 @@
   .spmsg{color:var(--dim);text-align:center;line-height:1.45;padding:8px 6px}
   .spbtn{display:block;margin:10px auto 0;height:46px;padding:0 22px;border-radius:23px;background:#1db954;color:#06210f;font-weight:700}
 
+
+  /* ============================================================
+     HUD MODE — futuristic look. Everything below only applies
+     when the page has the "hud" class. "fx" = motion effects on.
+     ============================================================ */
+  .ring,.sys,.tbarw,.eq{display:none}
+  body.hud{--bg:#02070c;--panel:rgba(5,20,30,.78);--panel2:rgba(0,229,255,.06);--line:rgba(0,229,255,.30);
+    --text:#dcfbff;--dim:#74bccb;--faint:#3d7480;--accent:#00e5ff;--green:#3dffb0;--amber:#ffb340;--red:#ff4d6d;--violet:#8fa8ff;
+    --r:2px;font-family:"Rajdhani","Segoe UI",sans-serif;font-size:calc(var(--fs)*1.1);font-weight:500;letter-spacing:.3px;
+    background:radial-gradient(ellipse at 50% 40%,#06202c 0%,#02070c 70%)}
+  body.hud::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:linear-gradient(rgba(0,229,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.055) 1px,transparent 1px);
+    background-size:44px 44px}
+  body.hud::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:30;
+    background:repeating-linear-gradient(0deg,rgba(255,255,255,.022) 0 1px,transparent 1px 3px)}
+  body.hud.fx::before{animation:drift 40s linear infinite}
+  @keyframes drift{to{background-position:0 44px,44px 0}}
+  body.hud .app{position:relative;z-index:1}
+
+  .hud .panel,.hud .top{position:relative;border:1px solid var(--line);
+    box-shadow:inset 0 0 28px rgba(0,229,255,.07),0 0 14px rgba(0,229,255,.06);
+    clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px))}
+  .hud .panel::before,.hud .top::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(var(--accent),var(--accent)) top left/22px 2px no-repeat,
+      linear-gradient(var(--accent),var(--accent)) top left/2px 22px no-repeat,
+      linear-gradient(var(--accent),var(--accent)) bottom right/22px 2px no-repeat,
+      linear-gradient(var(--accent),var(--accent)) bottom right/2px 22px no-repeat;
+    filter:drop-shadow(0 0 4px var(--accent))}
+  .hud .panel::after{content:attr(data-tag);position:absolute;right:26px;bottom:3px;pointer-events:none;
+    font:700 8px "Orbitron",sans-serif;letter-spacing:2px;color:var(--faint)}
+  .hud .pb{padding-bottom:16px}
+  .hud .ph h2{font-family:"Orbitron",sans-serif;font-size:.68em;letter-spacing:2.5px;color:var(--accent);
+    text-shadow:0 0 8px rgba(0,229,255,.55)}
+  .hud .ph .dot{border-radius:0;transform:rotate(45deg);box-shadow:0 0 8px currentColor}
+
+  .hud .clock,.hud .job .n,.hud .tbig,.hud .ag .tm,.hud .wx .t,.hud .times,.hud .next .lbl{font-family:"Orbitron",sans-serif}
+  .hud .clock{font-weight:500;font-size:2.2em;text-shadow:0 0 14px rgba(0,229,255,.7);color:#e8feff}
+  .hud .clock small{font-family:"Rajdhani",sans-serif}
+  .hud .date b{font-family:"Orbitron",sans-serif;font-size:.8em;letter-spacing:2px;text-transform:uppercase;color:var(--accent)}
+  .hud .wx,.hud .gear{border-radius:2px;background:var(--panel2);border:1px solid var(--line)}
+
+  .hud .job,.hud .lb,.hud .tb,.hud .add,.hud .btn,.hud .spctl button,.hud .clr,.hud .chk,.hud input,.hud textarea,.hud select,.hud .path{border-radius:2px}
+  .hud .job,.hud .lb,.hud .tb,.hud .add,.hud .spctl button,.hud .clr{background:rgba(0,229,255,.05);border:1px solid var(--line);color:var(--text)}
+  .hud .job:active,.hud .lb:active,.hud .tb:active,.hud .add:active,.hud .spctl button:active,.hud .gear:active,.hud .btn:active{
+    box-shadow:0 0 18px rgba(0,229,255,.7),inset 0 0 12px rgba(0,229,255,.35);border-color:var(--accent)}
+  .hud .job .n{font-size:1.25em;color:#e8feff;text-shadow:0 0 8px rgba(0,229,255,.5)}
+  .hud .pill{border-radius:2px;background:transparent!important;border:1px solid currentColor;font-family:"Orbitron",sans-serif;font-size:.6em;letter-spacing:1.5px}
+  .hud .lb .bar{box-shadow:0 0 8px currentColor}
+  .hud .next{border-radius:2px;background:linear-gradient(90deg,rgba(0,229,255,.16),rgba(0,229,255,.02));border:1px solid var(--accent);
+    box-shadow:0 0 14px rgba(0,229,255,.15)}
+  .hud .chk{border-color:var(--accent)}
+  .hud .pi.done .chk{box-shadow:0 0 10px var(--green)}
+  .hud .tbig{text-shadow:0 0 14px currentColor}
+  .hud .tbig.run{color:var(--amber)}
+
+  /* header extras */
+  .hud .ring{display:block;width:62px;height:62px;flex:none;margin-right:-6px}
+  .ring circle{fill:none;stroke:var(--accent)}
+  .ring .r1{stroke-width:1.5;stroke-dasharray:2 5;opacity:.7}
+  .ring .r2{stroke-width:3;opacity:.15}
+  .ring .r3{stroke-width:3;filter:drop-shadow(0 0 3px var(--accent));transition:stroke-dashoffset .3s}
+  .ring .r4{stroke-width:6;stroke-dasharray:1 5;opacity:.45}
+  .ring text{fill:var(--accent);font:700 17px "Orbitron",sans-serif;text-anchor:middle}
+  .ring .r1,.ring .r4{transform-box:fill-box;transform-origin:center}
+  .hud.fx .ring .r1{animation:spin 14s linear infinite}
+  .hud.fx .ring .r4{animation:spin 9s linear infinite reverse}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .hud .sys{display:flex;align-items:center;gap:8px;font:700 .62em "Orbitron",sans-serif;letter-spacing:2.5px;color:var(--green)}
+  .sys i{width:8px;height:8px;background:var(--green);box-shadow:0 0 10px var(--green);transform:rotate(45deg)}
+  .hud.fx .sys i{animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{50%{opacity:.25}}
+
+  /* timer countdown bar */
+  .hud .tbarw{display:block;height:6px;margin:0 2px 10px;background:rgba(255,179,64,.12);border:1px solid rgba(255,179,64,.35)}
+  .tbar{height:100%;width:0;background:var(--amber);box-shadow:0 0 10px var(--amber);transition:width .25s linear}
+  .hud .tbig{font-size:1.8em;padding-bottom:2px}
+  .hud .tb{height:38px}
+  .hud .tbtns{gap:6px}
+  .hud .timerlbl{font-size:.75em;margin-top:2px}
+
+  /* Spotify in HUD */
+  .hud .art{width:62px;height:62px;border-radius:2px;border:1px solid var(--line);box-shadow:0 0 12px rgba(0,229,255,.25)}
+  .hud .spctl button{height:40px}
+  .hud .spctl .pp{background:rgba(0,229,255,.18);border-color:var(--accent);color:var(--accent);box-shadow:0 0 14px rgba(0,229,255,.35)}
+  .hud .prog{border-radius:0;background:rgba(0,229,255,.12)}
+  .hud .prog .fill{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  .hud .spbtn{border-radius:2px;background:rgba(0,229,255,.15);color:var(--accent);border:1px solid var(--accent);font-family:"Orbitron",sans-serif;font-size:.8em;letter-spacing:2px}
+  .hud .eq{display:flex;gap:3px;height:30px;align-items:flex-end;padding:0 14px 12px;flex:none;margin-top:-6px}
+  .eq span{flex:1;height:100%;background:var(--accent);opacity:.18;transform:scaleY(.12);transform-origin:bottom}
+  .eq.on span{opacity:.75;transform:scaleY(calc(var(--h) * .6));box-shadow:0 0 6px var(--accent)}
+  .hud.fx .eq.on span{animation:eqb var(--d) ease-in-out infinite alternate}
+  @keyframes eqb{from{transform:scaleY(.1)}to{transform:scaleY(var(--h))}}
+
+  /* modal + toast */
+  .hud .modal{border-radius:2px;border:1px solid var(--accent);background:#04121b;box-shadow:0 0 30px rgba(0,229,255,.25)}
+  .hud .modal h3{font-family:"Orbitron",sans-serif;font-size:1em;letter-spacing:2px;color:var(--accent);text-transform:uppercase}
+  .hud .btn{background:rgba(0,229,255,.05);border-color:var(--line)}
+  .hud .btn.pri{background:rgba(0,229,255,.2);border-color:var(--accent);color:var(--accent)}
+  .hud .toast{border-radius:2px;border-color:var(--accent);background:#04121b;color:var(--accent);font-family:"Orbitron",sans-serif;font-size:.75em;letter-spacing:1.5px}
+
+  /* boot-up sequence */
+  #boot{position:fixed;inset:0;z-index:40;background:#02070c;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:10px;font:700 13px "Orbitron",sans-serif;letter-spacing:3px;color:var(--accent);transition:opacity .5s}
+  #boot .t{font-size:24px;letter-spacing:6px;text-shadow:0 0 18px var(--accent);margin-bottom:10px}
+  #boot .l{opacity:0;animation:bootin .25s forwards}
+  #boot .l b{color:var(--green)}
+  #boot .bar{width:280px;height:3px;background:rgba(0,229,255,.15);margin-top:8px}
+  #boot .bar i{display:block;height:100%;width:0;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:bootbar 1.3s ease-out forwards}
+  @keyframes bootin{to{opacity:1}}
+  @keyframes bootbar{to{width:100%}}
+
+  @media (prefers-reduced-motion: reduce){ body.fx *,body.fx::before{animation:none!important} }
+
   /* ---------- modal ---------- */
   .scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:10;padding:20px}
   .scrim.open{display:flex}
@@ -153,32 +268,39 @@
 
   <!-- ===== TOP BAR: clock + weather ===== -->
   <header class="top">
+    <svg class="ring" viewBox="0 0 100 100" aria-hidden="true">
+      <circle class="r1" cx="50" cy="50" r="46"/><circle class="r2" cx="50" cy="50" r="37"/>
+      <circle class="r3" id="secArc" cx="50" cy="50" r="37" stroke-dasharray="232.5" stroke-dashoffset="232.5" transform="rotate(-90 50 50)"/>
+      <circle class="r4" cx="50" cy="50" r="27"/><text x="50" y="56" id="ringTxt">00</text>
+    </svg>
     <div class="clock" id="clock">--:--</div>
     <div class="date" id="date"></div>
     <div class="spacer"></div>
+    <div class="sys"><i></i>SYS ONLINE</div>
     <div class="wx" id="wx">
       <div class="ico" id="wxIco">⛅</div>
       <div><div class="t" id="wxT">--°</div></div>
       <div class="s" id="wxS">Weather loading…</div>
     </div>
+    <button class="gear" id="thBtn" title="Switch look">◐</button>
     <button class="gear" id="gear" title="Settings">⚙</button>
   </header>
 
   <!-- ===== MIDDLE: Today | Jobs | Punch list ===== -->
   <section class="mid">
-    <div class="panel">
+    <div class="panel" data-tag="MOD-01 // SCHEDULE">
       <div class="ph"><span class="dot" style="background:var(--accent)"></span><h2>Today</h2>
         <button class="add" id="agAdd">+ Add</button></div>
       <div class="pb" id="today"></div>
     </div>
 
-    <div class="panel">
+    <div class="panel" data-tag="MOD-02 // ACTIVE OPS">
       <div class="ph"><span class="dot" style="background:var(--green)"></span><h2>Jobs</h2>
         <button class="add" id="jobAdd">+ Job</button></div>
       <div class="pb"><div class="jobs" id="jobs"></div></div>
     </div>
 
-    <div class="panel">
+    <div class="panel" data-tag="MOD-03 // OPEN ITEMS">
       <div class="ph"><span class="dot" style="background:var(--amber)"></span><h2>Punch List</h2>
         <button class="add" id="puAdd">+ Add</button></div>
       <div class="pb" id="punch"></div>
@@ -187,19 +309,21 @@
 
   <!-- ===== BOTTOM: Quick launch | Timers ===== -->
   <section class="bot">
-    <div class="panel">
+    <div class="panel" data-tag="MOD-04 // LAUNCH">
       <div class="ph"><span class="dot" style="background:var(--violet)"></span><h2>Quick Launch</h2>
         <button class="add" id="lbEdit">Edit</button></div>
       <div class="pb"><div class="launch" id="launch"></div></div>
     </div>
-    <div class="panel">
+    <div class="panel" data-tag="MOD-05 // AUDIO">
       <div class="ph"><span class="dot" style="background:#1db954"></span><h2>Spotify</h2><span class="spdev" id="spDev"></span></div>
       <div class="pb sp" id="sp"></div>
+      <div class="eq" id="eq"></div>
     </div>
-    <div class="panel">
+    <div class="panel" data-tag="MOD-06 // CHRONO">
       <div class="ph"><span class="dot" style="background:var(--red)"></span><h2>Timer</h2></div>
       <div class="pb">
         <div class="tbig" id="tDisp">00:00</div>
+        <div class="tbarw"><div class="tbar" id="tBar"></div></div>
         <div class="tbtns">
           <button class="tb" data-m="5">5m</button><button class="tb" data-m="15">15m</button>
           <button class="tb" data-m="30">30m</button><button class="tb" data-m="60">1h</button>
@@ -233,6 +357,8 @@ const DEFAULTS = {
     { label: "Outlook", url: "https://outlook.office.com", color: "#4da3ff" },
     { label: "Crestron Portal", url: "https://www.crestron.com", color: "#ff6b6b" }
   ],
+  theme: "hud",
+  fx: "high",
   agenda: [],
   agendaDay: "",
   punch: [
@@ -268,6 +394,9 @@ function tickClock(){
   let h = d.getHours(), m = String(d.getMinutes()).padStart(2,"0");
   const ap = h >= 12 ? "PM" : "AM"; h = h % 12 || 12;
   $("#clock").innerHTML = `${h}:${m}<small>${ap}</small>`;
+  const sec = d.getSeconds();
+  $("#secArc").setAttribute("stroke-dashoffset", (232.5 * (1 - sec/60)).toFixed(1));
+  $("#ringTxt").textContent = String(sec).padStart(2,"0");
   $("#date").innerHTML = `<b>${d.toLocaleDateString(undefined,{weekday:"long"})}</b>${d.toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"})}`;
 }
 
@@ -551,6 +680,7 @@ async function spPoll(){
 }
 function spMsg(html, btn){ $("#sp").innerHTML = `<div class="spmsg">${html}</div>${btn || ""}`; $("#spDev").textContent = ""; }
 function renderSpotify(){
+  $("#eq").classList.toggle("on", !!(SPS.access && spState && spState.is_playing && spState.item));
   const el = $("#sp");
   if (!SPS.clientId) return spMsg(`Not set up yet.<br>Add your Spotify Client ID in <b>⚙ Settings</b>.`);
   if (!SPS.access){
@@ -606,6 +736,11 @@ $("#gear").onclick = () => openModal(`<h3>Settings</h3>
   <div class="row2"><div class="fld"><label>LATITUDE</label><input id="wA" value="${S.weather.lat}"></div>
     <div class="fld"><label>LONGITUDE</label><input id="wO" value="${S.weather.lon}"></div></div>
   <div class="hint">Tip: right-click any spot in Google Maps — the first line is latitude, longitude.</div>
+  <h3 style="margin-top:20px;font-size:1em">Look</h3>
+  <div class="row2"><div class="fld"><label>THEME</label><select id="thSel">
+      <option value="hud" ${S.theme==="hud"?"selected":""}>HUD (futuristic)</option><option value="clean" ${S.theme!=="hud"?"selected":""}>Clean</option></select></div>
+    <div class="fld"><label>MOTION EFFECTS</label><select id="fxSel">
+      <option value="high" ${S.fx!=="low"?"selected":""}>On</option><option value="low" ${S.fx==="low"?"selected":""}>Off (calmer)</option></select></div></div>
   <h3 style="margin-top:20px;font-size:1em">Spotify</h3>
   <div class="fld"><label>SPOTIFY CLIENT ID</label><input id="spId" value="${esc(SPS.clientId)}" placeholder="From developer.spotify.com"></div>
   <div class="fld"><label>REDIRECT URI (paste this into your Spotify app)</label><div class="path">${esc(spRedirect())}</div>
@@ -622,7 +757,9 @@ $("#gear").onclick = () => openModal(`<h3>Settings</h3>
     m.querySelector("#s").onclick = () => {
       const lat = parseFloat(m.querySelector("#wA").value), lon = parseFloat(m.querySelector("#wO").value);
       if (isNaN(lat) || isNaN(lon)) return toast("Latitude/longitude need to be numbers");
-      S.weather = { name: m.querySelector("#wN").value.trim() || "Weather", lat, lon }; save(); loadWeather();
+      S.weather = { name: m.querySelector("#wN").value.trim() || "Weather", lat, lon };
+      S.theme = m.querySelector("#thSel").value; S.fx = m.querySelector("#fxSel").value; applyTheme();
+      save(); loadWeather();
       const id = m.querySelector("#spId").value.trim();
       if (id !== SPS.clientId){ spClear(); SPS.clientId = id; spSave(); }
       renderSpotify(); closeModal();
@@ -630,9 +767,42 @@ $("#gear").onclick = () => openModal(`<h3>Settings</h3>
   });
 
 /* ============================================================
+   LOOK — clean vs HUD, motion on/off, boot-up sequence
+   ============================================================ */
+(function buildEq(){                       // the audio meter is a visual effect — Spotify doesn't share real sound levels
+  const eq = $("#eq"); let h = "";
+  for (let i = 0; i < 32; i++){
+    const hh = (0.35 + Math.abs(Math.sin(i * 1.7)) * 0.65).toFixed(2), dd = (0.35 + ((i * 37) % 11) / 18).toFixed(2);
+    h += `<span style="--h:${hh};--d:${dd}s"></span>`;
+  }
+  eq.innerHTML = h;
+})();
+function applyTheme(){
+  document.body.classList.toggle("hud", S.theme === "hud");
+  document.body.classList.toggle("fx", S.theme === "hud" && S.fx !== "low");
+}
+function boot(){
+  if (!(S.theme === "hud" && S.fx !== "low")) return;
+  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const b = document.createElement("div"); b.id = "boot";
+  const lines = ["CORE SYSTEMS", "JOB DATABASE", "WEATHER UPLINK", "AUDIO LINK", "CHRONOMETER"];
+  b.innerHTML = `<div class="t">APG COMMAND HUB</div>` +
+    lines.map((l,i) => `<div class="l" style="animation-delay:${0.15 + i*0.18}s">${l} ······ <b>ONLINE</b></div>`).join("") +
+    `<div class="bar"><i></i></div>`;
+  document.body.appendChild(b);
+  setTimeout(() => { b.style.opacity = "0"; setTimeout(() => b.remove(), 500); }, 1600);
+}
+$("#thBtn").onclick = () => { S.theme = S.theme === "hud" ? "clean" : "hud"; save(); applyTheme(); boot(); };
+setInterval(() => {
+  const bar = $("#tBar");
+  bar.style.width = tEnd ? (Math.max(0, (tEnd - Date.now()) / (tTotal * 60000)) * 100).toFixed(2) + "%" : "0%";
+}, 250);
+
+/* ============================================================
    START
    ============================================================ */
 function renderAll(){ renderToday(); renderJobs(); renderPunch(); renderLaunch(); tickTimer(); renderSpotify(); }
+applyTheme(); boot();
 tickClock(); renderAll(); loadWeather();
 spHandleReturn().then(() => { renderSpotify(); spPoll(); });
 setInterval(tickClock, 1000);
