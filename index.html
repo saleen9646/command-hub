@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>APG Command Hub</title>
+<style>
+  /* ============================================================
+     APG COMMAND HUB — sized for iPad 10th gen (landscape) via Duet
+     Target canvas: about 1180 x 820. Everything scales to fit.
+     ============================================================ */
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c232c; --line:#2a333e;
+    --text:#e8edf2; --dim:#8b97a4; --faint:#5a6572;
+    --accent:#4da3ff; --green:#3fcf8e; --amber:#f5b44a; --red:#ff6b6b; --violet:#a78bfa;
+    --r:14px; --gap:10px;
+    --fs: clamp(13px, 1.25vw, 17px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--text);
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;font-size:var(--fs);
+    -webkit-user-select:none;user-select:none;overflow:hidden;-webkit-tap-highlight-color:transparent}
+  button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+  input,textarea,select{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);
+    border-radius:10px;padding:10px 12px;width:100%;-webkit-user-select:text;user-select:text}
+  textarea{resize:vertical;min-height:70px}
+
+  .app{height:100vh;display:grid;gap:var(--gap);padding:var(--gap);
+    grid-template-rows:auto 1fr minmax(150px,26vh)}
+
+  /* ---------- top bar: clock + weather ---------- */
+  .top{display:flex;align-items:center;gap:18px;background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--r);padding:10px 18px}
+  .clock{font-size:2.6em;font-weight:300;letter-spacing:.5px;font-variant-numeric:tabular-nums;line-height:1}
+  .clock small{font-size:.4em;color:var(--dim);margin-left:4px}
+  .date{color:var(--dim);line-height:1.25}
+  .date b{color:var(--text);font-weight:600;display:block}
+  .spacer{flex:1}
+  .wx{display:flex;align-items:center;gap:12px;padding:6px 12px;border-radius:12px;background:var(--panel2)}
+  .wx .ico{font-size:1.9em}
+  .wx .t{font-size:1.6em;font-weight:600}
+  .wx .s{color:var(--dim);font-size:.85em;line-height:1.3}
+  .gear{width:46px;height:46px;border-radius:12px;background:var(--panel2);font-size:1.3em}
+
+  /* ---------- panels ---------- */
+  .mid{display:grid;gap:var(--gap);grid-template-columns:1fr 1.35fr 1fr;min-height:0}
+  .bot{display:grid;gap:var(--gap);grid-template-columns:1.15fr 1.35fr .9fr;min-height:0}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+    display:flex;flex-direction:column;min-height:0;overflow:hidden}
+  .ph{display:flex;align-items:center;gap:8px;padding:12px 14px 8px}
+  .ph h2{font-size:.78em;letter-spacing:1.4px;text-transform:uppercase;color:var(--dim);font-weight:700}
+  .ph .dot{width:8px;height:8px;border-radius:50%}
+  .ph .add{margin-left:auto;height:34px;min-width:34px;padding:0 10px;border-radius:10px;
+    background:var(--panel2);color:var(--dim);font-size:.9em}
+  .pb{flex:1;overflow-y:auto;padding:4px 12px 12px;min-height:0}
+  .pb::-webkit-scrollbar{width:6px}.pb::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+  .empty{color:var(--faint);text-align:center;padding:24px 8px;line-height:1.5}
+
+  /* Today */
+  .next{background:linear-gradient(135deg,#17324f,#1c232c);border:1px solid #24496f;border-radius:12px;
+    padding:12px 14px;margin-bottom:10px}
+  .next .lbl{font-size:.72em;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);font-weight:700}
+  .next .ti{font-size:1.15em;font-weight:600;margin:4px 0 2px}
+  .next .cd{color:var(--dim)}
+  .ag{display:flex;gap:12px;align-items:center;padding:10px 6px;border-bottom:1px solid var(--line);min-height:48px}
+  .ag .tm{width:64px;color:var(--accent);font-variant-numeric:tabular-nums;font-weight:600}
+  .ag.past{opacity:.38}.ag.past .tm{color:var(--dim)}
+  .ag .x{margin-left:auto;color:var(--faint);width:36px;height:36px;border-radius:8px}
+
+  /* Jobs */
+  .jobs{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+  .job{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:left;
+    min-height:96px;display:flex;flex-direction:column;gap:3px;transition:transform .08s}
+  .job:active,.lb:active,.tb:active{transform:scale(.97)}
+  .job .n{font-size:1.45em;font-weight:700;font-variant-numeric:tabular-nums}
+  .job .nm{font-weight:600;line-height:1.2}
+  .job .cl{color:var(--dim);font-size:.85em}
+  .pill{align-self:flex-start;margin-top:auto;font-size:.7em;font-weight:700;letter-spacing:.8px;
+    text-transform:uppercase;padding:3px 8px;border-radius:20px}
+  .st-Bid{background:#2b2350;color:var(--violet)}
+  .st-Active{background:#123a2a;color:var(--green)}
+  .st-Punch{background:#3d2e12;color:var(--amber)}
+  .st-Closeout{background:#14304d;color:var(--accent)}
+  .st-Hold{background:#3d1a1a;color:var(--red)}
+
+  /* Punch */
+  .pi{display:flex;gap:12px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--line);min-height:50px}
+  .chk{width:30px;height:30px;flex:none;border-radius:8px;border:2px solid var(--faint);display:grid;place-items:center;
+    font-weight:800;color:var(--bg)}
+  .pi.done .chk{background:var(--green);border-color:var(--green)}
+  .pi.done .tx{text-decoration:line-through;color:var(--faint)}
+  .pi .tx{flex:1;line-height:1.3}
+  .pi .x{color:var(--faint);width:36px;height:36px;border-radius:8px}
+  .clr{margin-top:10px;width:100%;height:40px;border-radius:10px;background:var(--panel2);color:var(--dim);font-size:.9em}
+
+  /* Quick launch */
+  .launch{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;height:100%;align-content:start}
+  .lb{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;
+    padding:0 10px;height:50px;font-size:.92em;text-decoration:none;color:var(--text);font-weight:600;line-height:1.15;transition:transform .08s}
+  .lb .bar{width:5px;height:30px;border-radius:3px;flex:none}
+
+  /* Timers */
+  .tbig{font-size:2.2em;font-weight:300;text-align:center;font-variant-numeric:tabular-nums;padding:0 0 6px}
+  .tbig.run{color:var(--amber)} .tbig.done{color:var(--red);animation:blink .6s steps(2) infinite}
+  @keyframes blink{50%{opacity:.25}}
+  .tbtns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .tb{height:44px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-weight:600;transition:transform .08s}
+  .tb.stop{grid-column:span 4;background:#3d1a1a;color:var(--red);border-color:#5a2525;display:none}
+  .timerlbl{color:var(--dim);text-align:center;font-size:.85em;min-height:1.2em}
+
+  /* Spotify */
+  .spdev{margin-left:auto;color:var(--faint);font-size:.75em;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sp{display:flex;flex-direction:column;gap:10px}
+  .spnow{display:flex;gap:12px;align-items:center;min-width:0}
+  .art{width:74px;height:74px;border-radius:10px;background:var(--panel2);object-fit:cover;flex:none}
+  .meta{flex:1;min-width:0}
+  .meta .tt{font-weight:700;font-size:1.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .meta .ar{color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:2px 0 8px}
+  .prog{height:5px;background:var(--line);border-radius:3px;overflow:hidden}
+  .prog .fill{height:100%;background:#1db954;width:0}
+  .times{display:flex;justify-content:space-between;color:var(--faint);font-size:.75em;margin-top:4px;font-variant-numeric:tabular-nums}
+  .spctl{display:grid;grid-template-columns:1fr 1fr 1.4fr 1fr 1fr;gap:6px}
+  .spctl button{height:44px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-size:1.1em;transition:transform .08s}
+  .spctl button:active{transform:scale(.95)}
+  .spctl .pp{background:#1db954;border-color:#1db954;color:#06210f;font-size:1.3em}
+  .spmsg{color:var(--dim);text-align:center;line-height:1.45;padding:8px 6px}
+  .spbtn{display:block;margin:10px auto 0;height:46px;padding:0 22px;border-radius:23px;background:#1db954;color:#06210f;font-weight:700}
+
+  /* ---------- modal ---------- */
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:10;padding:20px}
+  .scrim.open{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:min(560px,100%);
+    max-height:92vh;overflow:auto;padding:20px}
+  .modal h3{font-size:1.2em;margin-bottom:14px}
+  .fld{margin-bottom:12px}.fld label{display:block;color:var(--dim);font-size:.8em;margin-bottom:5px;letter-spacing:.4px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .acts{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+  .btn{height:46px;padding:0 18px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-weight:600}
+  .btn.pri{background:var(--accent);border-color:var(--accent);color:#06121f}
+  .btn.del{color:var(--red);margin-right:auto}
+  .path{font-family:Consolas,monospace;font-size:.85em;background:var(--bg);border:1px solid var(--line);border-radius:10px;
+    padding:10px 12px;word-break:break-all;color:var(--dim);-webkit-user-select:text;user-select:text}
+  .hint{color:var(--faint);font-size:.8em;margin-top:6px;line-height:1.4}
+  .mlist .mi{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+  .mlist .mi span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);
+    padding:10px 18px;border-radius:12px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
+  .toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== TOP BAR: clock + weather ===== -->
+  <header class="top">
+    <div class="clock" id="clock">--:--</div>
+    <div class="date" id="date"></div>
+    <div class="spacer"></div>
+    <div class="wx" id="wx">
+      <div class="ico" id="wxIco">⛅</div>
+      <div><div class="t" id="wxT">--°</div></div>
+      <div class="s" id="wxS">Weather loading…</div>
+    </div>
+    <button class="gear" id="gear" title="Settings">⚙</button>
+  </header>
+
+  <!-- ===== MIDDLE: Today | Jobs | Punch list ===== -->
+  <section class="mid">
+    <div class="panel">
+      <div class="ph"><span class="dot" style="background:var(--accent)"></span><h2>Today</h2>
+        <button class="add" id="agAdd">+ Add</button></div>
+      <div class="pb" id="today"></div>
+    </div>
+
+    <div class="panel">
+      <div class="ph"><span class="dot" style="background:var(--green)"></span><h2>Jobs</h2>
+        <button class="add" id="jobAdd">+ Job</button></div>
+      <div class="pb"><div class="jobs" id="jobs"></div></div>
+    </div>
+
+    <div class="panel">
+      <div class="ph"><span class="dot" style="background:var(--amber)"></span><h2>Punch List</h2>
+        <button class="add" id="puAdd">+ Add</button></div>
+      <div class="pb" id="punch"></div>
+    </div>
+  </section>
+
+  <!-- ===== BOTTOM: Quick launch | Timers ===== -->
+  <section class="bot">
+    <div class="panel">
+      <div class="ph"><span class="dot" style="background:var(--violet)"></span><h2>Quick Launch</h2>
+        <button class="add" id="lbEdit">Edit</button></div>
+      <div class="pb"><div class="launch" id="launch"></div></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><span class="dot" style="background:#1db954"></span><h2>Spotify</h2><span class="spdev" id="spDev"></span></div>
+      <div class="pb sp" id="sp"></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><span class="dot" style="background:var(--red)"></span><h2>Timer</h2></div>
+      <div class="pb">
+        <div class="tbig" id="tDisp">00:00</div>
+        <div class="tbtns">
+          <button class="tb" data-m="5">5m</button><button class="tb" data-m="15">15m</button>
+          <button class="tb" data-m="30">30m</button><button class="tb" data-m="60">1h</button>
+          <button class="tb stop" id="tStop">Stop</button>
+        </div>
+        <div class="timerlbl" id="tLbl"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="scrim" id="scrim"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   DATA — saved in this browser (localStorage). Edit via the UI.
+   ============================================================ */
+const KEY = "apgHub.v1";
+const DEFAULTS = {
+  weather: { name: "Set location in ⚙", lat: 27.3364, lon: -82.5307 },
+  jobs: [
+    { id: 1, num: "0001", name: "Sample job — tap to edit", client: "Client name", status: "Active",
+      path: "C:\\Jobs\\0001 - Sample", notes: "" }
+  ],
+  launch: [
+    { label: "Design Studio", url: "https://example.com", color: "#4da3ff" },
+    { label: "Project Tracker", url: "https://example.com", color: "#3fcf8e" },
+    { label: "Acceptance Form", url: "https://example.com", color: "#f5b44a" },
+    { label: "Google Calendar", url: "https://calendar.google.com", color: "#a78bfa" },
+    { label: "Outlook", url: "https://outlook.office.com", color: "#4da3ff" },
+    { label: "Crestron Portal", url: "https://www.crestron.com", color: "#ff6b6b" }
+  ],
+  agenda: [],
+  agendaDay: "",
+  punch: [
+    { text: "Tap + Add to create a punch item", done: false },
+    { text: "Tap the box to check it off", done: true }
+  ]
+};
+
+let S;
+function load(){
+  try { S = JSON.parse(localStorage.getItem(KEY)) || structuredClone(DEFAULTS); }
+  catch(e){ S = structuredClone(DEFAULTS); }
+  for (const k in DEFAULTS) if (S[k] === undefined) S[k] = structuredClone(DEFAULTS[k]);
+}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+load();
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const todayKey = () => new Date().toDateString();
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),1800); }
+
+/* ---------- modal helper ---------- */
+function openModal(html, wire){ $("#modal").innerHTML = html; $("#scrim").classList.add("open"); wire && wire($("#modal")); }
+function closeModal(){ $("#scrim").classList.remove("open"); }
+$("#scrim").addEventListener("click", e => { if (e.target.id === "scrim") closeModal(); });
+
+/* ============================================================
+   CLOCK
+   ============================================================ */
+function tickClock(){
+  const d = new Date();
+  let h = d.getHours(), m = String(d.getMinutes()).padStart(2,"0");
+  const ap = h >= 12 ? "PM" : "AM"; h = h % 12 || 12;
+  $("#clock").innerHTML = `${h}:${m}<small>${ap}</small>`;
+  $("#date").innerHTML = `<b>${d.toLocaleDateString(undefined,{weekday:"long"})}</b>${d.toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"})}`;
+}
+
+/* ============================================================
+   WEATHER (Open-Meteo, free, no key)
+   ============================================================ */
+const WX = c => c===0?["☀️","Clear"]:c<=2?["🌤️","Partly cloudy"]:c===3?["☁️","Overcast"]:c<=48?["🌫️","Fog"]:
+  c<=57?["🌦️","Drizzle"]:c<=67?["🌧️","Rain"]:c<=77?["🌨️","Snow"]:c<=82?["🌧️","Showers"]:["⛈️","Storms"];
+async function loadWeather(){
+  const w = S.weather;
+  try{
+    const u = `https://api.open-meteo.com/v1/forecast?latitude=${w.lat}&longitude=${w.lon}`+
+      `&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max`+
+      `&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=1`;
+    const r = await fetch(u); const j = await r.json();
+    const [ico, txt] = WX(j.current.weather_code);
+    $("#wxIco").textContent = ico;
+    $("#wxT").textContent = Math.round(j.current.temperature_2m) + "°";
+    $("#wxS").innerHTML = `${esc(w.name)} · ${txt}<br>H ${Math.round(j.daily.temperature_2m_max[0])}° L ${Math.round(j.daily.temperature_2m_min[0])}° · Rain ${j.daily.precipitation_probability_max[0] ?? 0}%`;
+  }catch(e){
+    $("#wxIco").textContent = "🌡️"; $("#wxT").textContent = "--°";
+    $("#wxS").innerHTML = `${esc(w.name)}<br>Weather unavailable here`;
+  }
+}
+
+/* ============================================================
+   TODAY (agenda)
+   ============================================================ */
+function fmt12(t){ const [h,m]=t.split(":").map(Number); return `${h%12||12}:${String(m).padStart(2,"0")}${h>=12?"p":"a"}`; }
+function renderToday(){
+  if (S.agendaDay !== todayKey()){ S.agenda = []; S.agendaDay = todayKey(); save(); }   // fresh list each day
+  const now = new Date(), mins = now.getHours()*60 + now.getMinutes();
+  const items = [...S.agenda].sort((a,b)=>a.time.localeCompare(b.time));
+  const toMin = t => { const [h,m]=t.split(":").map(Number); return h*60+m; };
+  const next = items.find(i => toMin(i.time) >= mins);
+  let html = "";
+  if (next){
+    const diff = toMin(next.time) - mins;
+    const cd = diff === 0 ? "Starting now" : diff < 60 ? `in ${diff} min` : `in ${Math.floor(diff/60)}h ${diff%60}m`;
+    html += `<div class="next"><div class="lbl">Up next · ${fmt12(next.time)}</div><div class="ti">${esc(next.title)}</div><div class="cd">${cd}</div></div>`;
+  }
+  if (!items.length) html += `<div class="empty">Nothing on the list yet.<br>Tap <b>+ Add</b> for meetings, site visits, calls.</div>`;
+  items.forEach(i => {
+    html += `<div class="ag ${toMin(i.time) < mins ? "past":""}"><div class="tm">${fmt12(i.time)}</div><div>${esc(i.title)}</div>
+      <button class="x" data-id="${i.id}">✕</button></div>`;
+  });
+  $("#today").innerHTML = html;
+  $("#today").querySelectorAll(".x").forEach(b => b.onclick = () => { S.agenda = S.agenda.filter(a => a.id != b.dataset.id); save(); renderToday(); });
+}
+$("#agAdd").onclick = () => {
+  const d = new Date(); d.setMinutes(Math.ceil(d.getMinutes()/15)*15);
+  const t = `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()%60).padStart(2,"0")}`;
+  openModal(`<h3>Add to today</h3>
+    <div class="row2"><div class="fld"><label>TIME</label><input type="time" id="aT" value="${t}"></div>
+    <div class="fld"><label>WHAT</label><input id="aW" placeholder="Site walk — 4313"></div></div>
+    <div class="acts"><button class="btn" id="c">Cancel</button><button class="btn pri" id="s">Add</button></div>`, m => {
+      m.querySelector("#aW").focus();
+      m.querySelector("#c").onclick = closeModal;
+      m.querySelector("#s").onclick = () => {
+        const title = m.querySelector("#aW").value.trim(), time = m.querySelector("#aT").value;
+        if (!title || !time) return;
+        S.agenda.push({ id: Date.now(), time, title }); save(); renderToday(); closeModal();
+      };
+    });
+};
+
+/* ============================================================
+   JOBS
+   ============================================================ */
+const STATUSES = ["Bid","Active","Punch","Closeout","Hold"];
+function renderJobs(){
+  const order = { Active:0, Punch:1, Closeout:2, Bid:3, Hold:4 };
+  const list = [...S.jobs].sort((a,b) => (order[a.status]-order[b.status]) || a.num.localeCompare(b.num));
+  $("#jobs").innerHTML = list.length ? list.map(j => `
+    <button class="job" data-id="${j.id}">
+      <div class="n">${esc(j.num)}</div><div class="nm">${esc(j.name)}</div><div class="cl">${esc(j.client)}</div>
+      <span class="pill st-${j.status}">${j.status}</span>
+    </button>`).join("") : `<div class="empty">No jobs yet. Tap <b>+ Job</b>.</div>`;
+  $("#jobs").querySelectorAll(".job").forEach(b => b.onclick = () => jobDetail(S.jobs.find(j => j.id == b.dataset.id)));
+}
+function copy(text, msg){
+  (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
+    .then(() => toast(msg || "Copied — press Win+R, then Ctrl+V"))
+    .catch(() => toast("Couldn't copy — select the path and copy it"));
+}
+function jobDetail(j){
+  openModal(`<h3>${esc(j.num)} · ${esc(j.name)}</h3>
+    <div class="fld"><label>CLIENT</label><div>${esc(j.client) || "—"}</div></div>
+    <div class="fld"><label>STATUS</label><span class="pill st-${j.status}">${j.status}</span></div>
+    <div class="fld"><label>JOB FOLDER</label><div class="path">${esc(j.path) || "—"}</div>
+      <div class="hint">Tap Copy, then on your laptop press <b>Win + R</b>, paste, Enter — the folder opens.</div></div>
+    ${j.notes ? `<div class="fld"><label>NOTES</label><div style="white-space:pre-wrap;line-height:1.4">${esc(j.notes)}</div></div>` : ""}
+    <div class="acts"><button class="btn" id="e">Edit</button><button class="btn" id="c">Close</button>
+      <button class="btn pri" id="cp">Copy folder path</button></div>`, m => {
+      m.querySelector("#c").onclick = closeModal;
+      m.querySelector("#cp").onclick = () => copy(j.path);
+      m.querySelector("#e").onclick = () => jobEdit(j);
+    });
+}
+function jobEdit(j){
+  const isNew = !j; j = j || { id: Date.now(), num:"", name:"", client:"", status:"Active", path:"", notes:"" };
+  openModal(`<h3>${isNew ? "New job" : "Edit job"}</h3>
+    <div class="row2"><div class="fld"><label>JOB #</label><input id="fN" value="${esc(j.num)}"></div>
+      <div class="fld"><label>STATUS</label><select id="fS">${STATUSES.map(s=>`<option ${s===j.status?"selected":""}>${s}</option>`).join("")}</select></div></div>
+    <div class="fld"><label>JOB NAME</label><input id="fM" value="${esc(j.name)}"></div>
+    <div class="fld"><label>CLIENT / GC</label><input id="fC" value="${esc(j.client)}"></div>
+    <div class="fld"><label>FOLDER PATH</label><input id="fP" value="${esc(j.path)}" placeholder="C:\\Jobs\\4313 - ..."></div>
+    <div class="fld"><label>NOTES</label><textarea id="fO">${esc(j.notes)}</textarea></div>
+    <div class="acts">${isNew ? "" : `<button class="btn del" id="d">Delete</button>`}
+      <button class="btn" id="c">Cancel</button><button class="btn pri" id="s">Save</button></div>`, m => {
+      m.querySelector("#c").onclick = closeModal;
+      if (!isNew) m.querySelector("#d").onclick = () => {
+        const b = m.querySelector("#d");
+        if (b.dataset.sure){ S.jobs = S.jobs.filter(x => x.id !== j.id); save(); renderJobs(); closeModal(); }
+        else { b.dataset.sure = 1; b.textContent = "Tap again to delete"; }
+      };
+      m.querySelector("#s").onclick = () => {
+        Object.assign(j, { num:m.querySelector("#fN").value.trim(), status:m.querySelector("#fS").value,
+          name:m.querySelector("#fM").value.trim(), client:m.querySelector("#fC").value.trim(),
+          path:m.querySelector("#fP").value.trim(), notes:m.querySelector("#fO").value.trim() });
+        if (!j.num && !j.name) return;
+        if (isNew) S.jobs.push(j);
+        save(); renderJobs(); closeModal();
+      };
+    });
+}
+$("#jobAdd").onclick = () => jobEdit(null);
+
+/* ============================================================
+   PUNCH LIST
+   ============================================================ */
+function renderPunch(){
+  const el = $("#punch");
+  if (!S.punch.length){ el.innerHTML = `<div class="empty">All clear. ✔</div>`; return; }
+  el.innerHTML = S.punch.map((p,i) => `<div class="pi ${p.done?"done":""}">
+      <button class="chk" data-i="${i}">${p.done?"✓":""}</button><div class="tx">${esc(p.text)}</div>
+      <button class="x" data-i="${i}">✕</button></div>`).join("") +
+    (S.punch.some(p=>p.done) ? `<button class="clr" id="clrDone">Clear finished</button>` : "");
+  el.querySelectorAll(".chk").forEach(b => b.onclick = () => { S.punch[b.dataset.i].done ^= true; save(); renderPunch(); });
+  el.querySelectorAll(".x").forEach(b => b.onclick = () => { S.punch.splice(b.dataset.i,1); save(); renderPunch(); });
+  const c = $("#clrDone"); if (c) c.onclick = () => { S.punch = S.punch.filter(p=>!p.done); save(); renderPunch(); };
+}
+$("#puAdd").onclick = () => openModal(`<h3>Add punch item</h3>
+  <div class="fld"><input id="pT" placeholder="Label rack cables — 4313"></div>
+  <div class="acts"><button class="btn" id="c">Cancel</button><button class="btn pri" id="s">Add</button></div>`, m => {
+    const inp = m.querySelector("#pT"); inp.focus();
+    const go = () => { const t = inp.value.trim(); if (!t) return; S.punch.unshift({ text:t, done:false }); save(); renderPunch(); closeModal(); };
+    m.querySelector("#c").onclick = closeModal; m.querySelector("#s").onclick = go;
+    inp.onkeydown = e => { if (e.key === "Enter") go(); };
+  });
+
+/* ============================================================
+   QUICK LAUNCH
+   ============================================================ */
+function renderLaunch(){
+  $("#launch").innerHTML = S.launch.map(l => `<a class="lb" href="${esc(l.url)}" target="_blank" rel="noopener">
+    <span class="bar" style="background:${esc(l.color)}"></span>${esc(l.label)}</a>`).join("") ||
+    `<div class="empty">Tap <b>Edit</b> to add buttons.</div>`;
+}
+const COLORS = ["#4da3ff","#3fcf8e","#f5b44a","#a78bfa","#ff6b6b","#8b97a4"];
+function launchEditor(){
+  const draw = m => {
+    m.querySelector("#ml").innerHTML = S.launch.map((l,i) => `<div class="mi"><span class="bar" style="width:5px;height:24px;border-radius:3px;background:${esc(l.color)}"></span>
+      <span><b>${esc(l.label)}</b><br><small style="color:var(--faint)">${esc(l.url)}</small></span>
+      <button class="btn" data-up="${i}" style="height:38px;padding:0 12px">↑</button>
+      <button class="btn" data-rm="${i}" style="height:38px;padding:0 12px;color:var(--red)">✕</button></div>`).join("");
+    m.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { S.launch.splice(b.dataset.rm,1); save(); renderLaunch(); draw(m); });
+    m.querySelectorAll("[data-up]").forEach(b => b.onclick = () => { const i=+b.dataset.up; if(i>0){ [S.launch[i-1],S.launch[i]]=[S.launch[i],S.launch[i-1]]; save(); renderLaunch(); draw(m);} });
+  };
+  openModal(`<h3>Quick Launch buttons</h3><div class="mlist" id="ml"></div>
+    <h3 style="margin-top:18px;font-size:1em">Add a button</h3>
+    <div class="row2"><div class="fld"><label>LABEL</label><input id="lL" placeholder="Design Studio"></div>
+      <div class="fld"><label>COLOR</label><select id="lC">${COLORS.map(c=>`<option value="${c}">${c}</option>`).join("")}</select></div></div>
+    <div class="fld"><label>LINK (web address or file:///C:/path/to/file.html)</label><input id="lU" placeholder="https://..."></div>
+    <div class="acts"><button class="btn" id="c">Done</button><button class="btn pri" id="s">Add button</button></div>`, m => {
+      draw(m);
+      m.querySelector("#c").onclick = closeModal;
+      m.querySelector("#s").onclick = () => {
+        const label = m.querySelector("#lL").value.trim(), url = m.querySelector("#lU").value.trim();
+        if (!label || !url) return;
+        S.launch.push({ label, url, color: m.querySelector("#lC").value }); save(); renderLaunch();
+        m.querySelector("#lL").value = ""; m.querySelector("#lU").value = ""; draw(m);
+      };
+    });
+}
+$("#lbEdit").onclick = launchEditor;
+
+/* ============================================================
+   TIMER
+   ============================================================ */
+let tEnd = 0, tTotal = 0, tDone = false;
+function beep(){
+  try{ const a = new (window.AudioContext||window.webkitAudioContext)();
+    [0,.35,.7].forEach(s => { const o=a.createOscillator(), g=a.createGain(); o.frequency.value=880; o.connect(g); g.connect(a.destination);
+      g.gain.setValueAtTime(.2,a.currentTime+s); g.gain.exponentialRampToValueAtTime(.001,a.currentTime+s+.3); o.start(a.currentTime+s); o.stop(a.currentTime+s+.3); });
+  }catch(e){}
+}
+function tickTimer(){
+  const d = $("#tDisp"), stop = $("#tStop");
+  if (!tEnd && !tDone){ d.textContent = "00:00"; d.className = "tbig"; stop.style.display = "none"; $("#tLbl").textContent = "Tap a time to start"; return; }
+  stop.style.display = "block";
+  if (tDone){ d.textContent = "DONE"; d.className = "tbig done"; stop.textContent = "Dismiss"; return; }
+  const left = Math.max(0, Math.round((tEnd - Date.now())/1000));
+  d.textContent = `${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`;
+  d.className = "tbig run"; stop.textContent = "Stop";
+  $("#tLbl").textContent = `${tTotal} min timer · ends ${new Date(tEnd).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}`;
+  if (left === 0){ tDone = true; tEnd = 0; beep(); tickTimer(); }
+}
+document.querySelectorAll(".tb[data-m]").forEach(b => b.onclick = () => { tTotal = +b.dataset.m; tEnd = Date.now() + tTotal*60000; tDone = false; tickTimer(); });
+$("#tStop").onclick = () => { tEnd = 0; tDone = false; tickTimer(); };
+
+/* ============================================================
+   SPOTIFY — remote control for whatever Spotify is playing
+   (sign-in uses Spotify's "PKCE" method: no password or secret
+    is ever stored here, only a temporary pass from Spotify)
+   ============================================================ */
+const SPKEY = KEY + ".spotify";
+let SPS = { clientId:"", access:"", refresh:"", exp:0 };
+try { Object.assign(SPS, JSON.parse(localStorage.getItem(SPKEY)) || {}); } catch(e){}
+function spSave(){ try { localStorage.setItem(SPKEY, JSON.stringify(SPS)); } catch(e){} }
+function spClear(){ SPS.access = SPS.refresh = ""; SPS.exp = 0; spSave(); spState = null; }
+function spRedirect(){ return location.origin + location.pathname; }
+const SCOPES = "user-read-playback-state user-modify-playback-state user-read-currently-playing";
+const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+
+async function spLogin(){
+  if (location.protocol === "file:") return toast("Sign-in only works from the hosted version");
+  if (!window.crypto || !crypto.subtle) return toast("This browser can't do the secure sign-in here");
+  const verifier = b64url(crypto.getRandomValues(new Uint8Array(48)));
+  try { localStorage.setItem(SPKEY + ".v", verifier); } catch(e){}
+  const challenge = b64url(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier)));
+  location.href = "https://accounts.spotify.com/authorize?" + new URLSearchParams({
+    client_id: SPS.clientId, response_type: "code", redirect_uri: spRedirect(), scope: SCOPES,
+    code_challenge_method: "S256", code_challenge: challenge });
+}
+async function spTokenCall(params){
+  const r = await fetch("https://accounts.spotify.com/api/token", { method:"POST",
+    headers:{ "Content-Type":"application/x-www-form-urlencoded" }, body: new URLSearchParams(params) });
+  if (!r.ok) throw new Error("token " + r.status);
+  const j = await r.json();
+  SPS.access = j.access_token; if (j.refresh_token) SPS.refresh = j.refresh_token;
+  SPS.exp = Date.now() + j.expires_in * 1000; spSave();
+}
+async function spHandleReturn(){
+  const q = new URLSearchParams(location.search);
+  if (!q.has("code") && !q.has("error")) return;
+  history.replaceState(null, "", spRedirect());          // tidy the address bar
+  if (q.has("error")) return toast("Spotify sign-in was cancelled");
+  let verifier = ""; try { verifier = localStorage.getItem(SPKEY + ".v") || ""; } catch(e){}
+  try { await spTokenCall({ grant_type:"authorization_code", code:q.get("code"), redirect_uri:spRedirect(),
+          client_id:SPS.clientId, code_verifier:verifier }); toast("Spotify connected"); }
+  catch(e){ toast("Spotify sign-in failed — check the Client ID and redirect URI"); }
+}
+async function spToken(){
+  if (!SPS.access) return null;
+  if (Date.now() > SPS.exp - 60000){
+    try { await spTokenCall({ grant_type:"refresh_token", refresh_token:SPS.refresh, client_id:SPS.clientId }); }
+    catch(e){ spClear(); renderSpotify(); return null; }
+  }
+  return SPS.access;
+}
+async function spApi(method, path){
+  const t = await spToken(); if (!t) return { status: 0 };
+  try {
+    const r = await fetch("https://api.spotify.com/v1" + path, { method, headers:{ Authorization:"Bearer " + t } });
+    if (r.status === 401){ SPS.exp = 0; spSave(); }
+    let data = null; if (r.status !== 204){ try { data = await r.json(); } catch(e){} }
+    return { status: r.status, data };
+  } catch(e){ return { status: -1 }; }
+}
+
+let spState = null, spPolledAt = 0, spBusy = false;
+const mmss = ms => { const s = Math.floor(ms/1000); return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; };
+async function spPoll(){
+  if (!SPS.access || document.hidden) return;
+  const r = await spApi("GET", "/me/player?additional_types=episode");
+  if (r.status === 200 && r.data) spState = r.data;
+  else if (r.status === 204) spState = { idle: true };
+  else if (r.status === 403) spState = { err: "Spotify refused the request. This needs Spotify Premium on the account that made the developer app." };
+  spPolledAt = Date.now(); renderSpotify();
+}
+function spMsg(html, btn){ $("#sp").innerHTML = `<div class="spmsg">${html}</div>${btn || ""}`; $("#spDev").textContent = ""; }
+function renderSpotify(){
+  const el = $("#sp");
+  if (!SPS.clientId) return spMsg(`Not set up yet.<br>Add your Spotify Client ID in <b>⚙ Settings</b>.`);
+  if (!SPS.access){
+    spMsg(location.protocol === "file:" ? `Open the hosted version of the hub to connect Spotify.` : `Ready to connect.`,
+      location.protocol === "file:" ? "" : `<button class="spbtn" id="spIn">Connect Spotify</button>`);
+    const b = $("#spIn"); if (b) b.onclick = spLogin; return;
+  }
+  if (!spState) return spMsg("Loading…");
+  if (spState.err) return spMsg(esc(spState.err));
+  if (spState.idle || !spState.item) return spMsg(`Nothing playing right now.<br>Start Spotify on any device and it'll show up here.`);
+  const it = spState.item, isEp = it.type === "episode";
+  const art = (isEp ? it.images : it.album && it.album.images) || [];
+  const img = art.length ? art[art.length > 1 ? 1 : 0].url : "";
+  const who = isEp ? (it.show && it.show.name) : (it.artists || []).map(a => a.name).join(", ");
+  let prog = spState.progress_ms || 0;
+  if (spState.is_playing) prog += Date.now() - spPolledAt;
+  prog = Math.min(prog, it.duration_ms);
+  $("#spDev").textContent = spState.device ? "on " + spState.device.name : "";
+  el.innerHTML = `<div class="spnow">${img ? `<img class="art" src="${esc(img)}" alt="">` : `<div class="art"></div>`}
+      <div class="meta"><div class="tt">${esc(it.name)}</div><div class="ar">${esc(who)}</div>
+        <div class="prog"><div class="fill" style="width:${(prog/it.duration_ms*100).toFixed(1)}%"></div></div>
+        <div class="times"><span>${mmss(prog)}</span><span>${mmss(it.duration_ms)}</span></div></div></div>
+    <div class="spctl">
+      <button data-a="vdn" title="Volume down">🔉</button><button data-a="prev" title="Previous">⏮</button>
+      <button class="pp" data-a="pp" title="Play / pause">${spState.is_playing ? "⏸" : "▶"}</button>
+      <button data-a="next" title="Next">⏭</button><button data-a="vup" title="Volume up">🔊</button></div>`;
+  el.querySelectorAll("[data-a]").forEach(b => b.onclick = () => spDo(b.dataset.a));
+}
+async function spDo(a){
+  if (spBusy) return; spBusy = true;
+  const vol = spState && spState.device ? spState.device.volume_percent : null;
+  let r;
+  if (a === "pp"){ r = await spApi("PUT", spState.is_playing ? "/me/player/pause" : "/me/player/play");
+    if (r.status >= 200 && r.status < 300){ spState.progress_ms += spState.is_playing ? Date.now() - spPolledAt : 0; spPolledAt = Date.now(); spState.is_playing = !spState.is_playing; renderSpotify(); } }
+  else if (a === "next") r = await spApi("POST", "/me/player/next");
+  else if (a === "prev") r = await spApi("POST", "/me/player/previous");
+  else if (vol == null) r = { status: 400, nov: true };
+  else r = await spApi("PUT", "/me/player/volume?volume_percent=" + Math.max(0, Math.min(100, vol + (a === "vup" ? 10 : -10))));
+  if (r.nov) toast("This device doesn't allow volume control from here");
+  else if (r.status === 404) toast("No active device — press play in Spotify once first");
+  else if (r.status === 403) toast("Spotify said no — Premium is required, or that device blocks remote control");
+  else if (r.status === -1) toast("Couldn't reach Spotify");
+  spBusy = false;
+  setTimeout(spPoll, 450);
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) spPoll(); });
+
+/* ============================================================
+   SETTINGS (weather location)
+   ============================================================ */
+$("#gear").onclick = () => openModal(`<h3>Settings</h3>
+  <div class="fld"><label>WEATHER LOCATION NAME</label><input id="wN" value="${esc(S.weather.name)}"></div>
+  <div class="row2"><div class="fld"><label>LATITUDE</label><input id="wA" value="${S.weather.lat}"></div>
+    <div class="fld"><label>LONGITUDE</label><input id="wO" value="${S.weather.lon}"></div></div>
+  <div class="hint">Tip: right-click any spot in Google Maps — the first line is latitude, longitude.</div>
+  <h3 style="margin-top:20px;font-size:1em">Spotify</h3>
+  <div class="fld"><label>SPOTIFY CLIENT ID</label><input id="spId" value="${esc(SPS.clientId)}" placeholder="From developer.spotify.com"></div>
+  <div class="fld"><label>REDIRECT URI (paste this into your Spotify app)</label><div class="path">${esc(spRedirect())}</div>
+    <div class="acts" style="margin-top:8px"><button class="btn" id="spCopy">Copy redirect URI</button>
+    ${SPS.access ? `<button class="btn" id="spOut">Disconnect Spotify</button>` : ""}</div>
+    ${location.protocol === "file:" ? `<div class="hint" style="color:var(--amber)">This copy is opened as a file, so Spotify sign-in can't work here. Use the hosted version.</div>` : ""}</div>
+  <div class="acts"><button class="btn del" id="r">Reset everything</button><button class="btn" id="c">Cancel</button><button class="btn pri" id="s">Save</button></div>`, m => {
+    m.querySelector("#c").onclick = closeModal;
+    m.querySelector("#spCopy").onclick = () => copy(spRedirect(), "Redirect URI copied");
+    const so = m.querySelector("#spOut"); if (so) so.onclick = () => { spClear(); renderSpotify(); closeModal(); };
+    m.querySelector("#r").onclick = () => { const b=m.querySelector("#r");
+      if (b.dataset.sure){ S = structuredClone(DEFAULTS); save(); renderAll(); loadWeather(); closeModal(); }
+      else { b.dataset.sure=1; b.textContent="Tap again to reset"; } };
+    m.querySelector("#s").onclick = () => {
+      const lat = parseFloat(m.querySelector("#wA").value), lon = parseFloat(m.querySelector("#wO").value);
+      if (isNaN(lat) || isNaN(lon)) return toast("Latitude/longitude need to be numbers");
+      S.weather = { name: m.querySelector("#wN").value.trim() || "Weather", lat, lon }; save(); loadWeather();
+      const id = m.querySelector("#spId").value.trim();
+      if (id !== SPS.clientId){ spClear(); SPS.clientId = id; spSave(); }
+      renderSpotify(); closeModal();
+    };
+  });
+
+/* ============================================================
+   START
+   ============================================================ */
+function renderAll(){ renderToday(); renderJobs(); renderPunch(); renderLaunch(); tickTimer(); renderSpotify(); }
+tickClock(); renderAll(); loadWeather();
+spHandleReturn().then(() => { renderSpotify(); spPoll(); });
+setInterval(tickClock, 1000);
+setInterval(spPoll, 5000);
+setInterval(() => { if (spState && spState.is_playing) renderSpotify(); }, 1000);
+setInterval(tickTimer, 250);
+setInterval(renderToday, 30000);
+setInterval(loadWeather, 15*60*1000);
+</script>
+</body>
+</html>
