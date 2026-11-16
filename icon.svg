@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#0a2c3a"/><stop offset="1" stop-color="#02070c"/></radialGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <g fill="none" stroke="#00e5ff" stroke-linecap="round" filter="url(#glow)">
+    <circle cx="256" cy="256" r="168" stroke-width="5" stroke-dasharray="3 14" opacity=".6"/>
+    <path d="M256 112 A144 144 0 0 1 393 212" stroke-width="16"/>
+    <path d="M393 300 A144 144 0 0 1 300 393" stroke-width="16"/>
+    <path d="M212 393 A144 144 0 0 1 119 300" stroke-width="16"/>
+    <path d="M119 212 A144 144 0 0 1 212 119" stroke-width="16" opacity=".55"/>
+    <polygon points="256,176 325,216 325,296 256,336 187,296 187,216" stroke-width="8"/>
+  </g>
+  <polygon points="256,222 290,256 256,290 222,256" fill="#00e5ff" filter="url(#glow)"/>
+</svg>

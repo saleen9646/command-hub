@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>APG Command Hub</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#02070c">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="icon" href="icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -241,6 +246,22 @@
 
   @media (prefers-reduced-motion: reduce){ body.fx *,body.fx::before{animation:none!important} }
 
+
+  /* ============================================================
+     APP WINDOW — when installed as an app and the title bar is
+     hidden (Chrome's ^ button), draw a slim dark drag strip where
+     the title bar was, beside the minimize/maximize/close buttons.
+     ============================================================ */
+  .titlebar{display:none}
+  @media (display-mode: window-controls-overlay){
+    .titlebar{display:flex;align-items:center;gap:8px;position:fixed;z-index:35;
+      left:env(titlebar-area-x,0);top:env(titlebar-area-y,0);width:env(titlebar-area-width,100%);height:env(titlebar-area-height,32px);
+      padding:0 12px;-webkit-app-region:drag;app-region:drag;
+      font:700 10px "Orbitron","Segoe UI",sans-serif;letter-spacing:3px;color:var(--faint)}
+    .titlebar img{width:16px;height:16px}
+    .app{height:100vh;padding-top:calc(env(titlebar-area-height,32px) + 2px)}
+  }
+
   /* ---------- modal ---------- */
   .scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:10;padding:20px}
   .scrim.open{display:flex}
@@ -264,6 +285,7 @@
 </style>
 </head>
 <body>
+<div class="titlebar"><img src="icon.svg" alt="">APG COMMAND HUB</div>
 <div class="app">
 
   <!-- ===== TOP BAR: clock + weather ===== -->
