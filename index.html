@@ -262,6 +262,10 @@
     .app{height:100vh;padding-top:calc(env(titlebar-area-height,32px) + 2px)}
   }
 
+  /* Spotify panel hidden */
+  body.nosp #spPanel{display:none}
+  body.nosp .bot{grid-template-columns:1.6fr 1fr}
+
   /* ---------- modal ---------- */
   .scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:10;padding:20px}
   .scrim.open{display:flex}
@@ -336,7 +340,7 @@
         <button class="add" id="lbEdit">Edit</button></div>
       <div class="pb"><div class="launch" id="launch"></div></div>
     </div>
-    <div class="panel" data-tag="MOD-05 // AUDIO">
+    <div class="panel" id="spPanel" data-tag="MOD-05 // AUDIO">
       <div class="ph"><span class="dot" style="background:#1db954"></span><h2>Spotify</h2><span class="spdev" id="spDev"></span></div>
       <div class="pb sp" id="sp"></div>
       <div class="eq" id="eq"></div>
@@ -380,6 +384,7 @@ const DEFAULTS = {
     { label: "Crestron Portal", url: "https://www.crestron.com", color: "#ff6b6b" }
   ],
   theme: "hud",
+  showSpotify: false,
   fx: "high",
   agenda: [],
   agendaDay: "",
@@ -693,7 +698,7 @@ async function spApi(method, path){
 let spState = null, spPolledAt = 0, spBusy = false;
 const mmss = ms => { const s = Math.floor(ms/1000); return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; };
 async function spPoll(){
-  if (!SPS.access || document.hidden) return;
+  if (!SPS.access || document.hidden || !S.showSpotify) return;
   const r = await spApi("GET", "/me/player?additional_types=episode");
   if (r.status === 200 && r.data) spState = r.data;
   else if (r.status === 204) spState = { idle: true };
@@ -764,6 +769,8 @@ $("#gear").onclick = () => openModal(`<h3>Settings</h3>
     <div class="fld"><label>MOTION EFFECTS</label><select id="fxSel">
       <option value="high" ${S.fx!=="low"?"selected":""}>On</option><option value="low" ${S.fx==="low"?"selected":""}>Off (calmer)</option></select></div></div>
   <h3 style="margin-top:20px;font-size:1em">Spotify</h3>
+  <div class="fld"><label>SHOW SPOTIFY PANEL</label><select id="spShow">
+    <option value="off" ${!S.showSpotify?"selected":""}>Off (use the Spotify app)</option><option value="on" ${S.showSpotify?"selected":""}>On</option></select></div>
   <div class="fld"><label>SPOTIFY CLIENT ID</label><input id="spId" value="${esc(SPS.clientId)}" placeholder="From developer.spotify.com"></div>
   <div class="fld"><label>REDIRECT URI (paste this into your Spotify app)</label><div class="path">${esc(spRedirect())}</div>
     <div class="acts" style="margin-top:8px"><button class="btn" id="spCopy">Copy redirect URI</button>
@@ -780,7 +787,7 @@ $("#gear").onclick = () => openModal(`<h3>Settings</h3>
       const lat = parseFloat(m.querySelector("#wA").value), lon = parseFloat(m.querySelector("#wO").value);
       if (isNaN(lat) || isNaN(lon)) return toast("Latitude/longitude need to be numbers");
       S.weather = { name: m.querySelector("#wN").value.trim() || "Weather", lat, lon };
-      S.theme = m.querySelector("#thSel").value; S.fx = m.querySelector("#fxSel").value; applyTheme();
+      S.theme = m.querySelector("#thSel").value; S.fx = m.querySelector("#fxSel").value; S.showSpotify = m.querySelector("#spShow").value === "on"; applyTheme();
       save(); loadWeather();
       const id = m.querySelector("#spId").value.trim();
       if (id !== SPS.clientId){ spClear(); SPS.clientId = id; spSave(); }
@@ -800,6 +807,8 @@ $("#gear").onclick = () => openModal(`<h3>Settings</h3>
   eq.innerHTML = h;
 })();
 function applyTheme(){
+  document.body.classList.toggle("nosp", !S.showSpotify);
+  if (S.showSpotify) spPoll();
   document.body.classList.toggle("hud", S.theme === "hud");
   document.body.classList.toggle("fx", S.theme === "hud" && S.fx !== "low");
 }
