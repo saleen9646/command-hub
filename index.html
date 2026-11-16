@@ -264,7 +264,15 @@
 
   /* Spotify panel hidden */
   body.nosp #spPanel{display:none}
-  body.nosp .bot{grid-template-columns:1.6fr 1fr}
+  /* with Spotify hidden, Jobs runs full height down the middle */
+  body.nosp .app{grid-template-columns:1fr 1.35fr 1fr}
+  body.nosp .top{grid-column:1 / -1}
+  body.nosp .mid,body.nosp .bot{display:contents}
+  body.nosp [data-tag^="MOD-01"]{grid-column:1;grid-row:2}
+  body.nosp [data-tag^="MOD-02"]{grid-column:2;grid-row:2 / 4}
+  body.nosp [data-tag^="MOD-03"]{grid-column:3;grid-row:2}
+  body.nosp [data-tag^="MOD-04"]{grid-column:1;grid-row:3}
+  body.nosp [data-tag^="MOD-06"]{grid-column:3;grid-row:3}
 
   /* ---------- modal ---------- */
   .scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:10;padding:20px}
