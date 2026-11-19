@@ -51,7 +51,7 @@
 
   /* ---------- panels ---------- */
   .mid{display:grid;gap:var(--gap);grid-template-columns:1fr 1.35fr 1fr;min-height:0}
-  .bot{display:grid;gap:var(--gap);grid-template-columns:1.15fr 1.35fr .9fr;min-height:0}
+  .bot{display:grid;gap:var(--gap);grid-template-columns:1.6fr 1fr;min-height:0}
   .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
     display:flex;flex-direction:column;min-height:0;overflow:hidden}
   .ph{display:flex;align-items:center;gap:8px;padding:12px 14px 8px}
@@ -110,7 +110,14 @@
   .tbig{font-size:2.2em;font-weight:300;text-align:center;font-variant-numeric:tabular-nums;padding:0 0 6px}
   .tbig.run{color:var(--amber)} .tbig.done{color:var(--red);animation:blink .6s steps(2) infinite}
   @keyframes blink{50%{opacity:.25}}
-  .tbtns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .tbtns{display:grid;grid-template-columns:repeat(4,1fr) .8fr;gap:8px}
+  .tbtns.run2{grid-template-columns:1.4fr 1fr;display:none}
+  .tb.sw{font-size:1.15em}
+  .tb.pz{background:#3d2e12;color:var(--amber);border-color:#5a4520}
+  .tb.pz.go{background:#123a2a;color:var(--green);border-color:#1f5a40}
+  .tb.stop2{background:#3d1a1a;color:var(--red);border-color:#5a2525}
+  .tbig.up{color:var(--accent)}
+  .tbig.paused{color:var(--dim);animation:blink 1.4s steps(2) infinite}
   .tb{height:44px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-weight:600;transition:transform .08s}
   .tb.stop{grid-column:span 4;background:#3d1a1a;color:var(--red);border-color:#5a2525;display:none}
   .timerlbl{color:var(--dim);text-align:center;font-size:.85em;min-height:1.2em}
@@ -268,11 +275,19 @@
   body.nosp .app{grid-template-columns:1fr 1.35fr 1fr}
   body.nosp .top{grid-column:1 / -1}
   body.nosp .mid,body.nosp .bot{display:contents}
-  body.nosp [data-tag^="MOD-01"]{grid-column:1;grid-row:2}
+  body.nosp [data-tag^="MOD-01"]{grid-column:1;grid-row:2 / 4}
   body.nosp [data-tag^="MOD-02"]{grid-column:2;grid-row:2 / 4}
   body.nosp [data-tag^="MOD-03"]{grid-column:3;grid-row:2}
-  body.nosp [data-tag^="MOD-04"]{grid-column:1;grid-row:3}
   body.nosp [data-tag^="MOD-06"]{grid-column:3;grid-row:3}
+
+  /* Daily quote */
+  @media (max-width:1400px){ .hud .sys{display:none} }
+  .quote{flex:1;min-width:0;text-align:center;padding:0 18px;cursor:pointer}
+  .qt{font-size:1.05em;line-height:1.3;color:var(--text);font-style:italic;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .qa{margin-top:4px;font-size:.7em;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:700}
+  .hud .qt{font-style:normal;font-weight:600;font-size:1.12em}
+  .hud .qa{font-family:"Orbitron",sans-serif;font-size:.6em;letter-spacing:2.5px;text-shadow:0 0 8px rgba(0,229,255,.5)}
 
   /* ---------- modal ---------- */
   .scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:10;padding:20px}
@@ -309,7 +324,7 @@
     </svg>
     <div class="clock" id="clock">--:--</div>
     <div class="date" id="date"></div>
-    <div class="spacer"></div>
+    <div class="quote" id="quote" title="Tap for another quote"><div class="qt" id="qt"></div><div class="qa" id="qa"></div></div>
     <div class="sys"><i></i>SYS ONLINE</div>
     <div class="wx" id="wx">
       <div class="ico" id="wxIco">⛅</div>
@@ -341,13 +356,8 @@
     </div>
   </section>
 
-  <!-- ===== BOTTOM: Quick launch | Timers ===== -->
+  <!-- ===== BOTTOM: Spotify | Timer ===== -->
   <section class="bot">
-    <div class="panel" data-tag="MOD-04 // LAUNCH">
-      <div class="ph"><span class="dot" style="background:var(--violet)"></span><h2>Quick Launch</h2>
-        <button class="add" id="lbEdit">Edit</button></div>
-      <div class="pb"><div class="launch" id="launch"></div></div>
-    </div>
     <div class="panel" id="spPanel" data-tag="MOD-05 // AUDIO">
       <div class="ph"><span class="dot" style="background:#1db954"></span><h2>Spotify</h2><span class="spdev" id="spDev"></span></div>
       <div class="pb sp" id="sp"></div>
@@ -358,10 +368,13 @@
       <div class="pb">
         <div class="tbig" id="tDisp">00:00</div>
         <div class="tbarw"><div class="tbar" id="tBar"></div></div>
-        <div class="tbtns">
+        <div class="tbtns" id="tIdle">
           <button class="tb" data-m="5">5m</button><button class="tb" data-m="15">15m</button>
           <button class="tb" data-m="30">30m</button><button class="tb" data-m="60">1h</button>
-          <button class="tb stop" id="tStop">Stop</button>
+          <button class="tb sw" id="tSw" title="Stopwatch — counts up">⏱</button>
+        </div>
+        <div class="tbtns run2" id="tRun">
+          <button class="tb pz" id="tPause">Pause</button><button class="tb stop2" id="tStop">Stop</button>
         </div>
         <div class="timerlbl" id="tLbl"></div>
       </div>
@@ -392,6 +405,22 @@ const DEFAULTS = {
     { label: "Crestron Portal", url: "https://www.crestron.com", color: "#ff6b6b" }
   ],
   theme: "hud",
+  quoteBump: 0,
+  quotes: [
+    "Leadership is influence, nothing more, nothing less.",
+    "Everything rises and falls on leadership.",
+    "A leader is one who knows the way, goes the way, and shows the way.",
+    "Change is inevitable. Growth is optional.",
+    "Dreams don't work unless you do.",
+    "Sometimes you win, sometimes you learn.",
+    "Teamwork makes the dream work.",
+    "Leadership develops daily, not in a day.",
+    "People buy into the leader before they buy into the vision.",
+    "The first person you lead is you.",
+    "Talent is a gift, but character is a choice.",
+    "One is too small a number to achieve greatness.",
+    "Learn to say no to the good so you can say yes to the best."
+  ],
   showSpotify: false,
   fx: "high",
   agenda: [],
@@ -584,64 +613,59 @@ $("#puAdd").onclick = () => openModal(`<h3>Add punch item</h3>
   });
 
 /* ============================================================
-   QUICK LAUNCH
-   ============================================================ */
-function renderLaunch(){
-  $("#launch").innerHTML = S.launch.map(l => `<a class="lb" href="${esc(l.url)}" target="_blank" rel="noopener">
-    <span class="bar" style="background:${esc(l.color)}"></span>${esc(l.label)}</a>`).join("") ||
-    `<div class="empty">Tap <b>Edit</b> to add buttons.</div>`;
-}
-const COLORS = ["#4da3ff","#3fcf8e","#f5b44a","#a78bfa","#ff6b6b","#8b97a4"];
-function launchEditor(){
-  const draw = m => {
-    m.querySelector("#ml").innerHTML = S.launch.map((l,i) => `<div class="mi"><span class="bar" style="width:5px;height:24px;border-radius:3px;background:${esc(l.color)}"></span>
-      <span><b>${esc(l.label)}</b><br><small style="color:var(--faint)">${esc(l.url)}</small></span>
-      <button class="btn" data-up="${i}" style="height:38px;padding:0 12px">↑</button>
-      <button class="btn" data-rm="${i}" style="height:38px;padding:0 12px;color:var(--red)">✕</button></div>`).join("");
-    m.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { S.launch.splice(b.dataset.rm,1); save(); renderLaunch(); draw(m); });
-    m.querySelectorAll("[data-up]").forEach(b => b.onclick = () => { const i=+b.dataset.up; if(i>0){ [S.launch[i-1],S.launch[i]]=[S.launch[i],S.launch[i-1]]; save(); renderLaunch(); draw(m);} });
-  };
-  openModal(`<h3>Quick Launch buttons</h3><div class="mlist" id="ml"></div>
-    <h3 style="margin-top:18px;font-size:1em">Add a button</h3>
-    <div class="row2"><div class="fld"><label>LABEL</label><input id="lL" placeholder="Design Studio"></div>
-      <div class="fld"><label>COLOR</label><select id="lC">${COLORS.map(c=>`<option value="${c}">${c}</option>`).join("")}</select></div></div>
-    <div class="fld"><label>LINK (web address or file:///C:/path/to/file.html)</label><input id="lU" placeholder="https://..."></div>
-    <div class="acts"><button class="btn" id="c">Done</button><button class="btn pri" id="s">Add button</button></div>`, m => {
-      draw(m);
-      m.querySelector("#c").onclick = closeModal;
-      m.querySelector("#s").onclick = () => {
-        const label = m.querySelector("#lL").value.trim(), url = m.querySelector("#lU").value.trim();
-        if (!label || !url) return;
-        S.launch.push({ label, url, color: m.querySelector("#lC").value }); save(); renderLaunch();
-        m.querySelector("#lL").value = ""; m.querySelector("#lU").value = ""; draw(m);
-      };
-    });
-}
-$("#lbEdit").onclick = launchEditor;
-
-/* ============================================================
    TIMER
    ============================================================ */
-let tEnd = 0, tTotal = 0, tDone = false;
+// mode: "idle" | "down" (countdown) | "up" (stopwatch) | "done"
+let T = { mode:"idle", total:0, endAt:0, startAt:0, paused:false, left:0, acc:0 };
+let tEnd = 0, tTotal = 0;
 function beep(){
   try{ const a = new (window.AudioContext||window.webkitAudioContext)();
     [0,.35,.7].forEach(s => { const o=a.createOscillator(), g=a.createGain(); o.frequency.value=880; o.connect(g); g.connect(a.destination);
       g.gain.setValueAtTime(.2,a.currentTime+s); g.gain.exponentialRampToValueAtTime(.001,a.currentTime+s+.3); o.start(a.currentTime+s); o.stop(a.currentTime+s+.3); });
   }catch(e){}
 }
-function tickTimer(){
-  const d = $("#tDisp"), stop = $("#tStop");
-  if (!tEnd && !tDone){ d.textContent = "00:00"; d.className = "tbig"; stop.style.display = "none"; $("#tLbl").textContent = "Tap a time to start"; return; }
-  stop.style.display = "block";
-  if (tDone){ d.textContent = "DONE"; d.className = "tbig done"; stop.textContent = "Dismiss"; return; }
-  const left = Math.max(0, Math.round((tEnd - Date.now())/1000));
-  d.textContent = `${String(Math.floor(left/60)).padStart(2,"0")}:${String(left%60).padStart(2,"0")}`;
-  d.className = "tbig run"; stop.textContent = "Stop";
-  $("#tLbl").textContent = `${tTotal} min timer · ends ${new Date(tEnd).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}`;
-  if (left === 0){ tDone = true; tEnd = 0; beep(); tickTimer(); }
+function fmtT(ms){
+  const t = Math.max(0, Math.round(ms/1000)), h = Math.floor(t/3600), m = Math.floor(t%3600/60), sec = t%60;
+  return (h ? h + ":" + String(m).padStart(2,"0") : String(m).padStart(2,"0")) + ":" + String(sec).padStart(2,"0");
 }
-document.querySelectorAll(".tb[data-m]").forEach(b => b.onclick = () => { tTotal = +b.dataset.m; tEnd = Date.now() + tTotal*60000; tDone = false; tickTimer(); });
-$("#tStop").onclick = () => { tEnd = 0; tDone = false; tickTimer(); };
+const hm = ts => new Date(ts).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
+function tickTimer(){
+  const d = $("#tDisp"), lbl = $("#tLbl"), idle = $("#tIdle"), run = $("#tRun"), pz = $("#tPause"), stop = $("#tStop");
+  const now = Date.now();
+  idle.style.display = (T.mode === "idle") ? "grid" : "none";
+  run.style.display  = (T.mode === "idle") ? "none" : "grid";
+  pz.style.display   = (T.mode === "done") ? "none" : "block";
+  run.style.gridTemplateColumns = (T.mode === "done") ? "1fr" : "";
+  stop.textContent   = (T.mode === "done") ? "Dismiss" : "Stop";
+  pz.textContent = T.paused ? "Resume" : "Pause"; pz.classList.toggle("go", T.paused);
+  tEnd = 0;
+  if (T.mode === "idle"){ d.textContent = "00:00"; d.className = "tbig"; lbl.textContent = "Pick a time, or ⏱ to time a task"; return; }
+  if (T.mode === "done"){ d.textContent = "DONE"; d.className = "tbig done"; lbl.textContent = `${Math.round(T.total/60000)} min timer finished`; return; }
+  if (T.mode === "down"){
+    const left = T.paused ? T.left : T.endAt - now;
+    d.textContent = fmtT(left);
+    d.className = "tbig " + (T.paused ? "paused" : "run");
+    lbl.textContent = T.paused ? `Paused · ${fmtT(left)} left` : `${Math.round(T.total/60000)} min timer · ends ${hm(T.endAt)}`;
+    if (!T.paused){ tEnd = T.endAt; tTotal = T.total/60000; }
+    if (!T.paused && left <= 0){ T = { ...T, mode:"done" }; beep(); tickTimer(); }
+    return;
+  }
+  // stopwatch
+  const el = T.paused ? T.acc : now - T.startAt;
+  d.textContent = fmtT(el);
+  d.className = "tbig " + (T.paused ? "paused" : "up");
+  lbl.textContent = T.paused ? "Stopwatch paused" : `Stopwatch · started ${hm(T.firstStart)}`;
+}
+document.querySelectorAll(".tb[data-m]").forEach(b => b.onclick = () => {
+  const total = +b.dataset.m * 60000; T = { mode:"down", total, endAt: Date.now() + total, paused:false }; tickTimer(); });
+$("#tSw").onclick = () => { const n = Date.now(); T = { mode:"up", startAt:n, firstStart:n, paused:false, acc:0 }; tickTimer(); };
+$("#tPause").onclick = () => {
+  const n = Date.now();
+  if (!T.paused){ if (T.mode === "down") T.left = T.endAt - n; else T.acc = n - T.startAt; T.paused = true; }
+  else { if (T.mode === "down") T.endAt = n + T.left; else T.startAt = n - T.acc; T.paused = false; }
+  tickTimer();
+};
+$("#tStop").onclick = () => { T = { mode:"idle" }; tickTimer(); };
 
 /* ============================================================
    SPOTIFY — remote control for whatever Spotify is playing
@@ -764,6 +788,27 @@ async function spDo(a){
 document.addEventListener("visibilitychange", () => { if (!document.hidden) spPoll(); });
 
 /* ============================================================
+   DAILY QUOTE — a new one each day; tap for another.
+   One quote per line in Settings. Add " — Name" to credit
+   someone else; otherwise it's credited to John C. Maxwell.
+   ============================================================ */
+function parseQuote(line){
+  const m = line.match(/^(.*\S)\s+[—–]\s+(.+)$/) || line.match(/^(.*\S)\s+--\s+(.+)$/);
+  return m ? { q: m[1], a: m[2] } : { q: line, a: "John C. Maxwell" };
+}
+function renderQuote(){
+  const list = (S.quotes || []).map(x => x.trim()).filter(Boolean);
+  if (!list.length){ $("#qt").textContent = ""; $("#qa").textContent = ""; return; }
+  const d = new Date(), day = Math.floor((d - new Date(d.getFullYear(),0,0)) / 864e5);
+  const { q, a } = parseQuote(list[(day + (S.quoteBump||0)) % list.length]);
+  $("#qt").textContent = "\u201C" + q.replace(/^["\u201C]|["\u201D]$/g,"") + "\u201D";
+  $("#qa").textContent = "— " + a;
+}
+$("#quote").onclick = () => { S.quoteBump = (S.quoteBump||0) + 1; save(); renderQuote(); };
+let quoteDay = new Date().toDateString();
+setInterval(() => { const t = new Date().toDateString(); if (t !== quoteDay){ quoteDay = t; renderQuote(); } }, 60000);
+
+/* ============================================================
    SETTINGS (weather location)
    ============================================================ */
 $("#gear").onclick = () => openModal(`<h3>Settings</h3>
@@ -771,6 +816,9 @@ $("#gear").onclick = () => openModal(`<h3>Settings</h3>
   <div class="row2"><div class="fld"><label>LATITUDE</label><input id="wA" value="${S.weather.lat}"></div>
     <div class="fld"><label>LONGITUDE</label><input id="wO" value="${S.weather.lon}"></div></div>
   <div class="hint">Tip: right-click any spot in Google Maps — the first line is latitude, longitude.</div>
+  <h3 style="margin-top:20px;font-size:1em">Daily quotes</h3>
+  <div class="fld"><textarea id="qList" style="min-height:140px">${esc((S.quotes||[]).join("\n"))}</textarea>
+    <div class="hint">One quote per line. To credit someone other than John C. Maxwell, end the line with " — Name".</div></div>
   <h3 style="margin-top:20px;font-size:1em">Look</h3>
   <div class="row2"><div class="fld"><label>THEME</label><select id="thSel">
       <option value="hud" ${S.theme==="hud"?"selected":""}>HUD (futuristic)</option><option value="clean" ${S.theme!=="hud"?"selected":""}>Clean</option></select></div>
@@ -796,6 +844,7 @@ $("#gear").onclick = () => openModal(`<h3>Settings</h3>
       if (isNaN(lat) || isNaN(lon)) return toast("Latitude/longitude need to be numbers");
       S.weather = { name: m.querySelector("#wN").value.trim() || "Weather", lat, lon };
       S.theme = m.querySelector("#thSel").value; S.fx = m.querySelector("#fxSel").value; S.showSpotify = m.querySelector("#spShow").value === "on"; applyTheme();
+      S.quotes = m.querySelector("#qList").value.split("\n").map(x => x.trim()).filter(Boolean); renderQuote();
       save(); loadWeather();
       const id = m.querySelector("#spId").value.trim();
       if (id !== SPS.clientId){ spClear(); SPS.clientId = id; spSave(); }
@@ -834,13 +883,14 @@ function boot(){
 $("#thBtn").onclick = () => { S.theme = S.theme === "hud" ? "clean" : "hud"; save(); applyTheme(); boot(); };
 setInterval(() => {
   const bar = $("#tBar");
-  bar.style.width = tEnd ? (Math.max(0, (tEnd - Date.now()) / (tTotal * 60000)) * 100).toFixed(2) + "%" : "0%";
+  const left = T.mode === "down" ? (T.paused ? T.left : T.endAt - Date.now()) : 0;
+  bar.style.width = T.mode === "down" ? (Math.max(0, left / T.total) * 100).toFixed(2) + "%" : "0%";
 }, 250);
 
 /* ============================================================
    START
    ============================================================ */
-function renderAll(){ renderToday(); renderJobs(); renderPunch(); renderLaunch(); tickTimer(); renderSpotify(); }
+function renderAll(){ renderToday(); renderJobs(); renderPunch(); tickTimer(); renderSpotify(); renderQuote(); }
 applyTheme(); boot();
 tickClock(); renderAll(); loadWeather();
 spHandleReturn().then(() => { renderSpotify(); spPoll(); });
