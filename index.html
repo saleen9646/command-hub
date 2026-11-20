@@ -21,7 +21,7 @@
   --bg:#02060b; --panel:rgba(4,16,26,.82); --panel2:rgba(0,229,255,.05); --line:rgba(0,229,255,.26);
   --text:#dcfbff; --dim:#76b8c8; --faint:#3a6c78;
   --cyan:#00e5ff; --amber:#ffb340; --green:#3dffb0; --red:#ff4d6d; --violet:#a88bff; --gold:#ffcf6b;
-  --gap:10px; --fs:clamp(12px,1.05vw,16px);
+  --gap:10px; --ts:1; --fs:calc(clamp(12px,1.05vw,16px) * var(--ts));
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:var(--bg);color:var(--text);overflow:hidden;
@@ -545,7 +545,7 @@ function draw(now){
   if (!bgCanvas || !W) return;
   const t = now/1000, fx = S.fx;
   ctx.clearRect(0,0,W,H); ctx.drawImage(bgCanvas,0,0,W,H);
-  const cx = W*.5, cy = H*.42, rx = Math.min(W*.37, W/2-110), ry = Math.min(H*.27, H/2-90), R = Math.min(W,H)*.12;
+  const TS = textScale(), cx = W*.5, cy = H*.42 - (TS-1)*H*.06, rx = Math.min(W*.37, W/2-110*TS), ry = Math.min(H*.27, H/2-90*TS) - (TS-1)*H*.05, R = Math.min(W,H)*.12;
   // stars
   ctx.globalCompositeOperation = "lighter";
   for (const s of stars){ if (fx){ s.x -= s.s*.08; if (s.x < 0) s.x += W; }
@@ -578,9 +578,9 @@ function draw(now){
     ctx.strokeStyle = z > 0 ? `rgba(255,200,120,${al})` : `rgba(150,120,255,${al*.8})`; ctx.beginPath(); ctx.moveTo(cx+a[0]*R, cy+a[1]*R); ctx.lineTo(cx+b[0]*R, cy+b[1]*R); ctx.stroke(); }
   for (const p of P){ const s = 1.2 + (p[2]+1)*.9; ctx.fillStyle = p[2] > 0 ? "rgba(255,235,200,.9)" : "rgba(170,150,255,.6)"; ctx.fillRect(cx+p[0]*R-s/2, cy+p[1]*R-s/2, s, s); }
   ctx.globalCompositeOperation = "source-over";
-  ctx.textAlign = "center"; ctx.fillStyle = "#ffd59a"; ctx.font = `700 ${Math.max(10,R*.16)}px Orbitron`; ctx.shadowColor = "#ff9a3c"; ctx.shadowBlur = 10;
+  ctx.textAlign = "center"; ctx.fillStyle = "#ffd59a"; ctx.font = `700 ${Math.max(10,R*.16)*TS}px Orbitron`; ctx.shadowColor = "#ff9a3c"; ctx.shadowBlur = 10;
   ctx.fillText("APG CORE", cx, cy + R + 22); ctx.shadowBlur = 0;
-  ctx.fillStyle = "rgba(255,213,154,.6)"; ctx.font = `600 ${Math.max(10,R*.15)}px Rajdhani`; ctx.fillText(`${nodes.length} ACTIVE OPS`, cx, cy + R + 38);
+  ctx.fillStyle = "rgba(255,213,154,.6)"; ctx.font = `600 ${Math.max(10,R*.15)*TS}px Rajdhani`; ctx.fillText(`${nodes.length} ACTIVE OPS`, cx, cy + R + 22 + 16*TS);
   // job nodes
   nodes.forEach(n => { const j = jobById(n.id); if (!j) return; const col = STC[j.status], sel = n.id === S.selected, hov = n.id === hoverId;
     ctx.globalCompositeOperation = "lighter";
@@ -599,13 +599,13 @@ function draw(now){
     if (sel || hov){ ctx.save(); ctx.translate(n.x,n.y); ctx.rotate(fx ? t*.4 : 0); ctx.setLineDash([4,6]); ctx.strokeStyle = col; ctx.lineWidth = 1.4;
       ctx.beginPath(); ctx.arc(0,0,n.r+24,0,Math.PI*2); ctx.stroke(); ctx.restore(); ctx.setLineDash([]); }
     // label
-    const ly = n.y + n.r + 30;
+    const ly = n.y + n.r + 16 + 14*TS;
     ctx.textAlign = "center"; ctx.shadowColor = col; ctx.shadowBlur = sel ? 14 : 8;
-    ctx.fillStyle = "#eafcff"; ctx.font = `700 ${sel?17:15}px Orbitron`; ctx.fillText(j.num, n.x, ly); ctx.shadowBlur = 0;
-    const lines = wrap(j.name, 170, "600 13px Rajdhani"); ctx.fillStyle = sel ? "#cdeff7" : "rgba(170,215,228,.85)";
-    lines.forEach((l,i) => ctx.fillText(l, n.x, ly + 16 + i*14));
-    ctx.fillStyle = col; ctx.font = "700 9px Orbitron";
-    ctx.fillText(open ? `${open} OPEN · ${j.status.toUpperCase()}` : `CLEAR · ${j.status.toUpperCase()}`, n.x, ly + 18 + lines.length*14 + 2);
+    ctx.fillStyle = "#eafcff"; ctx.font = `700 ${(sel?17:15)*TS}px Orbitron`; ctx.fillText(j.num, n.x, ly); ctx.shadowBlur = 0;
+    const lines = wrap(j.name, 170*TS, `600 ${13*TS}px Rajdhani`); ctx.fillStyle = sel ? "#cdeff7" : "rgba(190,225,236,.9)";
+    lines.forEach((l,i) => ctx.fillText(l, n.x, ly + 16*TS + i*14*TS));
+    ctx.fillStyle = col; ctx.font = `700 ${9.5*TS}px Orbitron`;
+    ctx.fillText(open ? `${open} OPEN · ${j.status.toUpperCase()}` : `CLEAR · ${j.status.toUpperCase()}`, n.x, ly + 18*TS + lines.length*14*TS + 2);
   });
   if (!nodes.length){ ctx.fillStyle = "#76b8c8"; ctx.font = "600 15px Rajdhani"; ctx.textAlign = "center"; ctx.fillText("No Active or Punch jobs — tap + JOB", cx, cy + R + 70); }
 }
@@ -754,6 +754,10 @@ $("#gear").onclick = () => openModal(`<h3>SETTINGS</h3>
   <div class="fld"><textarea id="qList" style="min-height:120px">${esc(S.quotes.join("\n"))}</textarea>
     <div class="hint">One per line. End a line with " — Name" to credit someone other than John C. Maxwell.</div></div>
   <h4>LOOK</h4>
+  <div class="fld"><label>TEXT SIZE</label><select id="tsSel">
+    <option value="normal" ${S.textSize==="normal"?"selected":""}>Normal</option>
+    <option value="large" ${(!S.textSize||S.textSize==="large")?"selected":""}>Large</option>
+    <option value="xl" ${S.textSize==="xl"?"selected":""}>Extra large</option></select></div>
   <div class="row2"><div class="fld"><label>MOTION EFFECTS</label><select id="fxSel"><option value="on" ${S.fx?"selected":""}>On</option><option value="off" ${!S.fx?"selected":""}>Off (calmer)</option></select></div>
     <div class="fld"><label>CLASSIC LAYOUT</label><a class="btn" href="classic.html" style="display:flex;align-items:center;justify-content:center;text-decoration:none;color:var(--dim)">OPEN CLASSIC</a></div></div>
   <h4>SPOTIFY</h4>
@@ -772,6 +776,7 @@ $("#gear").onclick = () => openModal(`<h3>SETTINGS</h3>
       S.quotes = m.querySelector("#qList").value.split("\n").map(x => x.trim()).filter(Boolean);
       if (!S.quotes.length) S.quotes = QUOTES.slice();
       S.fx = m.querySelector("#fxSel").value === "on";
+      S.textSize = m.querySelector("#tsSel").value;
       S.showSpotify = m.querySelector("#spShow").value === "on";
       const id = m.querySelector("#spId").value.trim();
       if (id !== SPS.clientId){ spClear(); SPS.clientId = id; spSave(); }
@@ -782,7 +787,10 @@ $("#gear").onclick = () => openModal(`<h3>SETTINGS</h3>
 /* ============================================================
    START
    ============================================================ */
-function applyFx(){ document.body.classList.toggle("nosp", !S.showSpotify); $("#fxBtn").classList.toggle("off", !S.fx); document.querySelectorAll(".ring .r1,.ring .r4").forEach(e => e.style.animationPlayState = S.fx ? "running" : "paused"); }
+const TEXT_SIZES = { normal:1, large:1.2, xl:1.4 };
+function textScale(){ return TEXT_SIZES[S.textSize] || 1.2; }
+function applyText(){ document.documentElement.style.setProperty("--ts", textScale()); }
+function applyFx(){ applyText(); document.body.classList.toggle("nosp", !S.showSpotify); $("#fxBtn").classList.toggle("off", !S.fx); document.querySelectorAll(".ring .r1,.ring .r4").forEach(e => e.style.animationPlayState = S.fx ? "running" : "paused"); }
 $("#fxBtn").onclick = () => { S.fx = !S.fx; save(); applyFx(); toast(S.fx ? "MOTION ON" : "MOTION OFF"); };
 function refreshAll(){ renderSignals(); renderTodo(); renderJob(); renderFeed(); renderHealth(); if (tilesOn) renderTiles(); }
 if (!S.feed.length){ S.feed = [{t:"--:--",h:"Command Hub online"}]; }
