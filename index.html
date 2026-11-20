@@ -12,311 +12,194 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  /* ============================================================
-     APG COMMAND HUB — sized for iPad 10th gen (landscape) via Duet
-     Target canvas: about 1180 x 820. Everything scales to fit.
-     ============================================================ */
-  :root{
-    --bg:#0e1116; --panel:#161b22; --panel2:#1c232c; --line:#2a333e;
-    --text:#e8edf2; --dim:#8b97a4; --faint:#5a6572;
-    --accent:#4da3ff; --green:#3fcf8e; --amber:#f5b44a; --red:#ff6b6b; --violet:#a78bfa;
-    --r:14px; --gap:10px;
-    --fs: clamp(13px, 1.25vw, 17px);
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%;background:var(--bg);color:var(--text);
-    font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;font-size:var(--fs);
-    -webkit-user-select:none;user-select:none;overflow:hidden;-webkit-tap-highlight-color:transparent}
-  button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
-  input,textarea,select{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);
-    border-radius:10px;padding:10px 12px;width:100%;-webkit-user-select:text;user-select:text}
-  textarea{resize:vertical;min-height:70px}
+/* ============================================================
+   APG COMMAND HUB — CONSTELLATION
+   Jobs orbit a central core. Color = status, size = open punch.
+   (The previous layout lives on as classic.html.)
+   ============================================================ */
+:root{
+  --bg:#02060b; --panel:rgba(4,16,26,.82); --panel2:rgba(0,229,255,.05); --line:rgba(0,229,255,.26);
+  --text:#dcfbff; --dim:#76b8c8; --faint:#3a6c78;
+  --cyan:#00e5ff; --amber:#ffb340; --green:#3dffb0; --red:#ff4d6d; --violet:#a88bff; --gold:#ffcf6b;
+  --gap:10px; --fs:clamp(12px,1.05vw,16px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);overflow:hidden;
+  font-family:"Rajdhani","Segoe UI",system-ui,sans-serif;font-size:var(--fs);font-weight:500;letter-spacing:.3px;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+body{background:radial-gradient(ellipse at 50% 45%,#071c2a 0%,#02060b 65%)}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,select,textarea{font:inherit;color:var(--text);background:rgba(0,0,0,.35);border:1px solid var(--line);padding:8px 10px;width:100%;
+  -webkit-user-select:text;user-select:text;outline:none}
+input:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,229,255,.25)}
+.o{font-family:"Orbitron",sans-serif}
 
-  .app{height:100vh;display:grid;gap:var(--gap);padding:var(--gap);
-    grid-template-rows:auto 1fr minmax(150px,26vh)}
+.app{height:100vh;display:grid;grid-template-rows:auto 1fr;gap:var(--gap);padding:var(--gap)}
+.main{display:grid;grid-template-columns:minmax(240px,19%) 1fr minmax(280px,22%);gap:var(--gap);min-height:0}
+.col{display:flex;flex-direction:column;gap:var(--gap);min-height:0}
 
-  /* ---------- top bar: clock + weather ---------- */
-  .top{display:flex;align-items:center;gap:18px;background:var(--panel);border:1px solid var(--line);
-    border-radius:var(--r);padding:10px 18px}
-  .clock{font-size:2.6em;font-weight:300;letter-spacing:.5px;font-variant-numeric:tabular-nums;line-height:1}
-  .clock small{font-size:.4em;color:var(--dim);margin-left:4px}
-  .date{color:var(--dim);line-height:1.25}
-  .date b{color:var(--text);font-weight:600;display:block}
-  .spacer{flex:1}
-  .wx{display:flex;align-items:center;gap:12px;padding:6px 12px;border-radius:12px;background:var(--panel2)}
-  .wx .ico{font-size:1.9em}
-  .wx .t{font-size:1.6em;font-weight:600}
-  .wx .s{color:var(--dim);font-size:.85em;line-height:1.3}
-  .gear{width:46px;height:46px;border-radius:12px;background:var(--panel2);font-size:1.3em}
+/* ---------- HUD panel frame ---------- */
+.panel{position:relative;background:var(--panel);border:1px solid var(--line);display:flex;flex-direction:column;min-height:0;
+  box-shadow:inset 0 0 28px rgba(0,229,255,.06),0 0 14px rgba(0,229,255,.05);
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+.panel::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(var(--cyan),var(--cyan)) top left/20px 2px no-repeat,linear-gradient(var(--cyan),var(--cyan)) top left/2px 20px no-repeat,
+    linear-gradient(var(--cyan),var(--cyan)) bottom right/20px 2px no-repeat,linear-gradient(var(--cyan),var(--cyan)) bottom right/2px 20px no-repeat;
+  filter:drop-shadow(0 0 4px var(--cyan))}
+.panel[data-tag]::after{content:attr(data-tag);position:absolute;right:24px;bottom:3px;pointer-events:none;font:700 8px "Orbitron";letter-spacing:2px;color:var(--faint)}
+.ph{display:flex;align-items:center;gap:8px;padding:11px 14px 6px}
+.ph h2{font:700 .66em "Orbitron";letter-spacing:2.5px;color:var(--cyan);text-shadow:0 0 8px rgba(0,229,255,.55);white-space:nowrap}
+.ph .dia{width:8px;height:8px;transform:rotate(45deg);flex:none;box-shadow:0 0 8px currentColor}
+.ph .cnt{margin-left:auto;font:700 .62em "Orbitron";letter-spacing:1.5px;color:var(--dim)}
+.pb{flex:1;overflow-y:auto;padding:2px 12px 16px;min-height:0}
+.pb::-webkit-scrollbar{width:5px}.pb::-webkit-scrollbar-thumb{background:var(--line)}
 
-  /* ---------- panels ---------- */
-  .mid{display:grid;gap:var(--gap);grid-template-columns:1fr 1.35fr 1fr;min-height:0}
-  .bot{display:grid;gap:var(--gap);grid-template-columns:1.6fr 1fr;min-height:0}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
-    display:flex;flex-direction:column;min-height:0;overflow:hidden}
-  .ph{display:flex;align-items:center;gap:8px;padding:12px 14px 8px}
-  .ph h2{font-size:.78em;letter-spacing:1.4px;text-transform:uppercase;color:var(--dim);font-weight:700}
-  .ph .dot{width:8px;height:8px;border-radius:50%}
-  .ph .add{margin-left:auto;height:34px;min-width:34px;padding:0 10px;border-radius:10px;
-    background:var(--panel2);color:var(--dim);font-size:.9em}
-  .pb{flex:1;overflow-y:auto;padding:4px 12px 12px;min-height:0}
-  .pb::-webkit-scrollbar{width:6px}.pb::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
-  .empty{color:var(--faint);text-align:center;padding:24px 8px;line-height:1.5}
+/* ---------- top bar ---------- */
+.top{flex-direction:row;align-items:center;gap:16px;padding:8px 16px}
+.ring{width:58px;height:58px;flex:none}
+.ring circle{fill:none;stroke:var(--cyan)}
+.ring .r1{stroke-width:1.5;stroke-dasharray:2 5;opacity:.7;transform-box:fill-box;transform-origin:center;animation:spin 14s linear infinite}
+.ring .r2{stroke-width:3;opacity:.15}.ring .r3{stroke-width:3;filter:drop-shadow(0 0 3px var(--cyan))}
+.ring .r4{stroke-width:6;stroke-dasharray:1 5;opacity:.45;transform-box:fill-box;transform-origin:center;animation:spin 9s linear infinite reverse}
+.ring text{fill:var(--cyan);font:700 17px "Orbitron";text-anchor:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.clock{font:500 2.1em "Orbitron";text-shadow:0 0 14px rgba(0,229,255,.7);color:#e8feff;line-height:1}
+.clock small{font:600 .38em "Rajdhani";color:var(--dim);margin-left:3px}
+.date b{display:block;font:700 .7em "Orbitron";letter-spacing:2px;color:var(--cyan)}
+.date span{color:var(--dim)}
+.quote{flex:1;min-width:0;text-align:center;cursor:pointer;padding:0 10px}
+.qt{font-weight:600;font-size:1.1em;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.qa{margin-top:3px;font:700 .58em "Orbitron";letter-spacing:2.5px;color:var(--cyan);text-shadow:0 0 8px rgba(0,229,255,.5)}
+.health{display:flex;flex-direction:column;gap:2px;width:190px;flex:none}
+.health .hl{display:flex;justify-content:space-between;font:700 .55em "Orbitron";letter-spacing:2px;color:var(--dim)}
+.health .hl b{color:var(--green)}
+.health svg{width:100%;height:26px}
+.wx{display:flex;align-items:center;gap:10px;padding:5px 12px;border:1px solid var(--line);background:var(--panel2);flex:none}
+.wx .t{font:700 1.4em "Orbitron"}.wx .s{color:var(--dim);font-size:.8em;line-height:1.25}
+.ibtn{width:42px;height:42px;border:1px solid var(--line);background:var(--panel2);font:700 .62em "Orbitron";letter-spacing:1px;color:var(--cyan);flex:none}
+.ibtn.off{color:var(--faint)}
 
-  /* Today */
-  .next{background:linear-gradient(135deg,#17324f,#1c232c);border:1px solid #24496f;border-radius:12px;
-    padding:12px 14px;margin-bottom:10px}
-  .next .lbl{font-size:.72em;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);font-weight:700}
-  .next .ti{font-size:1.15em;font-weight:600;margin:4px 0 2px}
-  .next .cd{color:var(--dim)}
-  .ag{display:flex;gap:12px;align-items:center;padding:10px 6px;border-bottom:1px solid var(--line);min-height:48px}
-  .ag .tm{width:64px;color:var(--accent);font-variant-numeric:tabular-nums;font-weight:600}
-  .ag.past{opacity:.38}.ag.past .tm{color:var(--dim)}
-  .ag .x{margin-left:auto;color:var(--faint);width:36px;height:36px;border-radius:8px}
+/* ---------- lists (to-do + punch) ---------- */
+.addrow{display:flex;gap:6px;padding:0 12px 8px}
+.addrow input{padding:8px 10px}
+.addrow button{flex:none;width:40px;border:1px solid var(--cyan);color:var(--cyan);background:rgba(0,229,255,.12);font-weight:700;font-size:1.2em}
+.it{display:flex;gap:10px;align-items:center;padding:7px 2px;border-bottom:1px solid rgba(0,229,255,.1);min-height:42px}
+.chk{width:26px;height:26px;flex:none;border:2px solid var(--cyan);display:grid;place-items:center;color:#02060b;font-weight:800}
+.it.done .chk{background:var(--green);border-color:var(--green);box-shadow:0 0 10px var(--green)}
+.it .tx{flex:1;line-height:1.25}
+.it.done .tx{text-decoration:line-through;color:var(--faint)}
+.it .x{width:30px;height:30px;color:var(--faint);flex:none}
+.clr{margin-top:8px;width:100%;height:34px;border:1px solid var(--line);background:var(--panel2);color:var(--dim);font-size:.9em}
+.empty{color:var(--faint);text-align:center;padding:18px 6px;line-height:1.5}
 
-  /* Jobs */
-  .jobs{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
-  .job{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:left;
-    min-height:96px;display:flex;flex-direction:column;gap:3px;transition:transform .08s}
-  .job:active,.lb:active,.tb:active{transform:scale(.97)}
-  .job .n{font-size:1.45em;font-weight:700;font-variant-numeric:tabular-nums}
-  .job .nm{font-weight:600;line-height:1.2}
-  .job .cl{color:var(--dim);font-size:.85em}
-  .pill{align-self:flex-start;margin-top:auto;font-size:.7em;font-weight:700;letter-spacing:.8px;
-    text-transform:uppercase;padding:3px 8px;border-radius:20px}
-  .st-Bid{background:#2b2350;color:var(--violet)}
-  .st-Active{background:#123a2a;color:var(--green)}
-  .st-Punch{background:#3d2e12;color:var(--amber)}
-  .st-Closeout{background:#14304d;color:var(--accent)}
-  .st-Hold{background:#3d1a1a;color:var(--red)}
+/* attention */
+.sig{display:flex;gap:9px;align-items:flex-start;padding:6px 2px;cursor:pointer;line-height:1.25;font-size:.95em}
+.sig i{font-style:normal;flex:none;width:16px;text-align:center}
+.sig.a i{color:var(--amber)}.sig.g i{color:var(--green)}.sig.c i{color:var(--cyan)}.sig.r i{color:var(--red)}
 
-  /* Punch */
-  .pi{display:flex;gap:12px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--line);min-height:50px}
-  .chk{width:30px;height:30px;flex:none;border-radius:8px;border:2px solid var(--faint);display:grid;place-items:center;
-    font-weight:800;color:var(--bg)}
-  .pi.done .chk{background:var(--green);border-color:var(--green)}
-  .pi.done .tx{text-decoration:line-through;color:var(--faint)}
-  .pi .tx{flex:1;line-height:1.3}
-  .pi .x{color:var(--faint);width:36px;height:36px;border-radius:8px}
-  .clr{margin-top:10px;width:100%;height:40px;border-radius:10px;background:var(--panel2);color:var(--dim);font-size:.9em}
+/* ---------- center: constellation ---------- */
+.stage{padding:0;overflow:hidden}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:pointer}
+.ov{position:absolute;z-index:2}
+.legend{top:12px;left:16px;font:700 .55em "Orbitron";letter-spacing:2px;color:var(--dim);line-height:2}
+.legend b{display:inline-block;width:8px;height:8px;transform:rotate(45deg);margin-right:8px;box-shadow:0 0 6px currentColor}
+.views{top:10px;right:14px;display:flex;gap:6px;z-index:4}
+.views button,.addjob{height:32px;padding:0 12px;border:1px solid var(--line);background:rgba(2,10,16,.7);font:700 .58em "Orbitron";letter-spacing:2px;color:var(--dim)}
+.views button.on{color:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px rgba(0,229,255,.3)}
+.addjob{color:var(--cyan)}
+.feed{left:14px;bottom:12px;width:min(360px,46%);background:rgba(2,10,16,.72);border:1px solid rgba(0,229,255,.18);padding:8px 10px}
+.feed h3{font:700 .55em "Orbitron";letter-spacing:2.5px;color:var(--cyan);margin-bottom:4px;display:flex;justify-content:space-between}
+.feed h3 span{color:var(--green)}
+.feed .fl{font-size:.8em;color:var(--dim);line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed .fl em{font-style:normal;color:var(--faint);margin-right:6px;font-family:"Orbitron";font-size:.85em}
+.feed .fl b{color:var(--text);font-weight:600}
+.tapnote{right:16px;bottom:12px;font:700 .52em "Orbitron";letter-spacing:2px;color:var(--faint)}
+.tiles{position:absolute;inset:0;padding:54px 14px 18px;z-index:3;display:none;overflow-y:auto;background:rgba(2,8,14,.95);
+  grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;align-content:start}
+.tiles.on{display:grid}
+.tile{border:1px solid var(--line);background:rgba(2,14,22,.85);padding:12px;text-align:left;display:flex;flex-direction:column;gap:3px;min-height:110px}
+.tile .n{font:700 1.25em "Orbitron";color:#e8feff}.tile .nm{font-weight:700;line-height:1.2}.tile .cl{color:var(--dim);font-size:.85em}
+.tile.dimmed{opacity:.45}
+.pill{align-self:flex-start;margin-top:auto;font:700 .55em "Orbitron";letter-spacing:1.5px;padding:3px 7px;border:1px solid currentColor}
 
-  /* Quick launch */
-  .launch{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;height:100%;align-content:start}
-  .lb{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;
-    padding:0 10px;height:50px;font-size:.92em;text-decoration:none;color:var(--text);font-weight:600;line-height:1.15;transition:transform .08s}
-  .lb .bar{width:5px;height:30px;border-radius:3px;flex:none}
+/* ---------- right: selected job ---------- */
+.jobhead{padding:0 14px 8px;border-bottom:1px solid rgba(0,229,255,.12)}
+.jobhead .jn{font:700 2em "Orbitron";color:#e8feff;text-shadow:0 0 12px rgba(0,229,255,.5);line-height:1.1}
+.jobhead .jt{font-weight:700;font-size:1.1em;line-height:1.2;margin-top:2px}
+.jobhead .jc{color:var(--dim);font-size:.9em}
+.jobhead .jr{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.sbtn{height:30px;padding:0 10px;border:1px solid var(--line);background:var(--panel2);font:700 .55em "Orbitron";letter-spacing:1.5px;color:var(--dim)}
+.sbtn:active,.addrow button:active,.tb:active,.ibtn:active,.views button:active{box-shadow:0 0 16px rgba(0,229,255,.7);border-color:var(--cyan)}
+.prog{height:4px;background:rgba(0,229,255,.12);margin-top:8px}.prog i{display:block;height:100%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.psub{display:flex;justify-content:space-between;font:700 .52em "Orbitron";letter-spacing:2px;color:var(--faint);margin-top:4px}
 
-  /* Timers */
-  .tbig{font-size:2.2em;font-weight:300;text-align:center;font-variant-numeric:tabular-nums;padding:0 0 6px}
-  .tbig.run{color:var(--amber)} .tbig.done{color:var(--red);animation:blink .6s steps(2) infinite}
-  @keyframes blink{50%{opacity:.25}}
-  .tbtns{display:grid;grid-template-columns:repeat(4,1fr) .8fr;gap:8px}
-  .tbtns.run2{grid-template-columns:1.4fr 1fr;display:none}
-  .tb.sw{font-size:1.15em}
-  .tb.pz{background:#3d2e12;color:var(--amber);border-color:#5a4520}
-  .tb.pz.go{background:#123a2a;color:var(--green);border-color:#1f5a40}
-  .tb.stop2{background:#3d1a1a;color:var(--red);border-color:#5a2525}
-  .tbig.up{color:var(--accent)}
-  .tbig.paused{color:var(--dim);animation:blink 1.4s steps(2) infinite}
-  .tb{height:44px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-weight:600;transition:transform .08s}
-  .tb.stop{grid-column:span 4;background:#3d1a1a;color:var(--red);border-color:#5a2525;display:none}
-  .timerlbl{color:var(--dim);text-align:center;font-size:.85em;min-height:1.2em}
+/* timer */
+.tbig{font:500 1.9em "Orbitron";text-align:center;text-shadow:0 0 14px currentColor;color:#e8feff}
+.tbig.run{color:var(--amber)}.tbig.up{color:var(--cyan)}.tbig.done{color:var(--red);animation:blink .6s steps(2) infinite}
+.tbig.paused{color:var(--dim);animation:blink 1.4s steps(2) infinite}
+@keyframes blink{50%{opacity:.3}}
+.tbarw{height:5px;margin:4px 0 8px;background:rgba(255,179,64,.12);border:1px solid rgba(255,179,64,.3)}
+.tbar{height:100%;width:0;background:var(--amber);box-shadow:0 0 8px var(--amber)}
+.tbtns{display:grid;grid-template-columns:repeat(4,1fr) .8fr;gap:5px}
+.tbtns.run2{grid-template-columns:1.4fr 1fr;display:none}
+.tb{height:34px;border:1px solid var(--line);background:var(--panel2);font-weight:700}
+.tb.pz{color:var(--amber);border-color:rgba(255,179,64,.5)}.tb.pz.go{color:var(--green);border-color:rgba(61,255,176,.5)}
+.tb.st{color:var(--red);border-color:rgba(255,77,109,.5)}
+.tlbl{text-align:center;color:var(--dim);font-size:.78em;margin-top:5px;min-height:1.2em}
 
-  /* Spotify */
-  .spdev{margin-left:auto;color:var(--faint);font-size:.75em;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .sp{display:flex;flex-direction:column;gap:10px}
-  .spnow{display:flex;gap:12px;align-items:center;min-width:0}
-  .art{width:74px;height:74px;border-radius:10px;background:var(--panel2);object-fit:cover;flex:none}
-  .meta{flex:1;min-width:0}
-  .meta .tt{font-weight:700;font-size:1.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .meta .ar{color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:2px 0 8px}
-  .prog{height:5px;background:var(--line);border-radius:3px;overflow:hidden}
-  .prog .fill{height:100%;background:#1db954;width:0}
-  .times{display:flex;justify-content:space-between;color:var(--faint);font-size:.75em;margin-top:4px;font-variant-numeric:tabular-nums}
-  .spctl{display:grid;grid-template-columns:1fr 1fr 1.4fr 1fr 1fr;gap:6px}
-  .spctl button{height:44px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-size:1.1em;transition:transform .08s}
-  .spctl button:active{transform:scale(.95)}
-  .spctl .pp{background:#1db954;border-color:#1db954;color:#06210f;font-size:1.3em}
-  .spmsg{color:var(--dim);text-align:center;line-height:1.45;padding:8px 6px}
-  .spbtn{display:block;margin:10px auto 0;height:46px;padding:0 22px;border-radius:23px;background:#1db954;color:#06210f;font-weight:700}
+/* modal + toast */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:20;padding:20px}
+.scrim.open{display:flex}
+.modal{background:#04121b;border:1px solid var(--cyan);box-shadow:0 0 30px rgba(0,229,255,.25);width:min(520px,100%);max-height:92vh;overflow:auto;padding:20px}
+.modal h3{font:700 .9em "Orbitron";letter-spacing:2px;color:var(--cyan);margin-bottom:14px}
+.fld{margin-bottom:10px}.fld label{display:block;font:700 .55em "Orbitron";letter-spacing:2px;color:var(--dim);margin-bottom:4px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.acts{display:flex;gap:8px;margin-top:14px}
+.btn{height:42px;padding:0 16px;border:1px solid var(--line);background:var(--panel2);font:700 .62em "Orbitron";letter-spacing:1.5px}
+.btn.pri{border-color:var(--cyan);color:var(--cyan);background:rgba(0,229,255,.15)}
+.btn.del{color:var(--red);margin-right:auto}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#04121b;border:1px solid var(--cyan);color:var(--cyan);
+  padding:9px 16px;font:700 .65em "Orbitron";letter-spacing:1.5px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
+.toast.show{opacity:1}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:25;background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px)}
 
-
-  /* ============================================================
-     HUD MODE — futuristic look. Everything below only applies
-     when the page has the "hud" class. "fx" = motion effects on.
-     ============================================================ */
-  .ring,.sys,.tbarw,.eq{display:none}
-  body.hud{--bg:#02070c;--panel:rgba(5,20,30,.78);--panel2:rgba(0,229,255,.06);--line:rgba(0,229,255,.30);
-    --text:#dcfbff;--dim:#74bccb;--faint:#3d7480;--accent:#00e5ff;--green:#3dffb0;--amber:#ffb340;--red:#ff4d6d;--violet:#8fa8ff;
-    --r:2px;font-family:"Rajdhani","Segoe UI",sans-serif;font-size:calc(var(--fs)*1.1);font-weight:500;letter-spacing:.3px;
-    background:radial-gradient(ellipse at 50% 40%,#06202c 0%,#02070c 70%)}
-  body.hud::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
-    background-image:linear-gradient(rgba(0,229,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.055) 1px,transparent 1px);
-    background-size:44px 44px}
-  body.hud::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:30;
-    background:repeating-linear-gradient(0deg,rgba(255,255,255,.022) 0 1px,transparent 1px 3px)}
-  body.hud.fx::before{animation:drift 40s linear infinite}
-  @keyframes drift{to{background-position:0 44px,44px 0}}
-  body.hud .app{position:relative;z-index:1}
-
-  .hud .panel,.hud .top{position:relative;border:1px solid var(--line);
-    box-shadow:inset 0 0 28px rgba(0,229,255,.07),0 0 14px rgba(0,229,255,.06);
-    clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px))}
-  .hud .panel::before,.hud .top::before{content:"";position:absolute;inset:0;pointer-events:none;
-    background:linear-gradient(var(--accent),var(--accent)) top left/22px 2px no-repeat,
-      linear-gradient(var(--accent),var(--accent)) top left/2px 22px no-repeat,
-      linear-gradient(var(--accent),var(--accent)) bottom right/22px 2px no-repeat,
-      linear-gradient(var(--accent),var(--accent)) bottom right/2px 22px no-repeat;
-    filter:drop-shadow(0 0 4px var(--accent))}
-  .hud .panel::after{content:attr(data-tag);position:absolute;right:26px;bottom:3px;pointer-events:none;
-    font:700 8px "Orbitron",sans-serif;letter-spacing:2px;color:var(--faint)}
-  .hud .pb{padding-bottom:16px}
-  .hud .ph h2{font-family:"Orbitron",sans-serif;font-size:.68em;letter-spacing:2.5px;color:var(--accent);
-    text-shadow:0 0 8px rgba(0,229,255,.55)}
-  .hud .ph .dot{border-radius:0;transform:rotate(45deg);box-shadow:0 0 8px currentColor}
-
-  .hud .clock,.hud .job .n,.hud .tbig,.hud .ag .tm,.hud .wx .t,.hud .times,.hud .next .lbl{font-family:"Orbitron",sans-serif}
-  .hud .clock{font-weight:500;font-size:2.2em;text-shadow:0 0 14px rgba(0,229,255,.7);color:#e8feff}
-  .hud .clock small{font-family:"Rajdhani",sans-serif}
-  .hud .date b{font-family:"Orbitron",sans-serif;font-size:.8em;letter-spacing:2px;text-transform:uppercase;color:var(--accent)}
-  .hud .wx,.hud .gear{border-radius:2px;background:var(--panel2);border:1px solid var(--line)}
-
-  .hud .job,.hud .lb,.hud .tb,.hud .add,.hud .btn,.hud .spctl button,.hud .clr,.hud .chk,.hud input,.hud textarea,.hud select,.hud .path{border-radius:2px}
-  .hud .job,.hud .lb,.hud .tb,.hud .add,.hud .spctl button,.hud .clr{background:rgba(0,229,255,.05);border:1px solid var(--line);color:var(--text)}
-  .hud .job:active,.hud .lb:active,.hud .tb:active,.hud .add:active,.hud .spctl button:active,.hud .gear:active,.hud .btn:active{
-    box-shadow:0 0 18px rgba(0,229,255,.7),inset 0 0 12px rgba(0,229,255,.35);border-color:var(--accent)}
-  .hud .job .n{font-size:1.25em;color:#e8feff;text-shadow:0 0 8px rgba(0,229,255,.5)}
-  .hud .pill{border-radius:2px;background:transparent!important;border:1px solid currentColor;font-family:"Orbitron",sans-serif;font-size:.6em;letter-spacing:1.5px}
-  .hud .lb .bar{box-shadow:0 0 8px currentColor}
-  .hud .next{border-radius:2px;background:linear-gradient(90deg,rgba(0,229,255,.16),rgba(0,229,255,.02));border:1px solid var(--accent);
-    box-shadow:0 0 14px rgba(0,229,255,.15)}
-  .hud .chk{border-color:var(--accent)}
-  .hud .pi.done .chk{box-shadow:0 0 10px var(--green)}
-  .hud .tbig{text-shadow:0 0 14px currentColor}
-  .hud .tbig.run{color:var(--amber)}
-
-  /* header extras */
-  .hud .ring{display:block;width:62px;height:62px;flex:none;margin-right:-6px}
-  .ring circle{fill:none;stroke:var(--accent)}
-  .ring .r1{stroke-width:1.5;stroke-dasharray:2 5;opacity:.7}
-  .ring .r2{stroke-width:3;opacity:.15}
-  .ring .r3{stroke-width:3;filter:drop-shadow(0 0 3px var(--accent));transition:stroke-dashoffset .3s}
-  .ring .r4{stroke-width:6;stroke-dasharray:1 5;opacity:.45}
-  .ring text{fill:var(--accent);font:700 17px "Orbitron",sans-serif;text-anchor:middle}
-  .ring .r1,.ring .r4{transform-box:fill-box;transform-origin:center}
-  .hud.fx .ring .r1{animation:spin 14s linear infinite}
-  .hud.fx .ring .r4{animation:spin 9s linear infinite reverse}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .hud .sys{display:flex;align-items:center;gap:8px;font:700 .62em "Orbitron",sans-serif;letter-spacing:2.5px;color:var(--green)}
-  .sys i{width:8px;height:8px;background:var(--green);box-shadow:0 0 10px var(--green);transform:rotate(45deg)}
-  .hud.fx .sys i{animation:pulse 1.6s ease-in-out infinite}
-  @keyframes pulse{50%{opacity:.25}}
-
-  /* timer countdown bar */
-  .hud .tbarw{display:block;height:6px;margin:0 2px 10px;background:rgba(255,179,64,.12);border:1px solid rgba(255,179,64,.35)}
-  .tbar{height:100%;width:0;background:var(--amber);box-shadow:0 0 10px var(--amber);transition:width .25s linear}
-  .hud .tbig{font-size:1.8em;padding-bottom:2px}
-  .hud .tb{height:38px}
-  .hud .tbtns{gap:6px}
-  .hud .timerlbl{font-size:.75em;margin-top:2px}
-
-  /* Spotify in HUD */
-  .hud .art{width:62px;height:62px;border-radius:2px;border:1px solid var(--line);box-shadow:0 0 12px rgba(0,229,255,.25)}
-  .hud .spctl button{height:40px}
-  .hud .spctl .pp{background:rgba(0,229,255,.18);border-color:var(--accent);color:var(--accent);box-shadow:0 0 14px rgba(0,229,255,.35)}
-  .hud .prog{border-radius:0;background:rgba(0,229,255,.12)}
-  .hud .prog .fill{background:var(--accent);box-shadow:0 0 8px var(--accent)}
-  .hud .spbtn{border-radius:2px;background:rgba(0,229,255,.15);color:var(--accent);border:1px solid var(--accent);font-family:"Orbitron",sans-serif;font-size:.8em;letter-spacing:2px}
-  .hud .eq{display:flex;gap:3px;height:30px;align-items:flex-end;padding:0 14px 12px;flex:none;margin-top:-6px}
-  .eq span{flex:1;height:100%;background:var(--accent);opacity:.18;transform:scaleY(.12);transform-origin:bottom}
-  .eq.on span{opacity:.75;transform:scaleY(calc(var(--h) * .6));box-shadow:0 0 6px var(--accent)}
-  .hud.fx .eq.on span{animation:eqb var(--d) ease-in-out infinite alternate}
-  @keyframes eqb{from{transform:scaleY(.1)}to{transform:scaleY(var(--h))}}
-
-  /* modal + toast */
-  .hud .modal{border-radius:2px;border:1px solid var(--accent);background:#04121b;box-shadow:0 0 30px rgba(0,229,255,.25)}
-  .hud .modal h3{font-family:"Orbitron",sans-serif;font-size:1em;letter-spacing:2px;color:var(--accent);text-transform:uppercase}
-  .hud .btn{background:rgba(0,229,255,.05);border-color:var(--line)}
-  .hud .btn.pri{background:rgba(0,229,255,.2);border-color:var(--accent);color:var(--accent)}
-  .hud .toast{border-radius:2px;border-color:var(--accent);background:#04121b;color:var(--accent);font-family:"Orbitron",sans-serif;font-size:.75em;letter-spacing:1.5px}
-
-  /* boot-up sequence */
-  #boot{position:fixed;inset:0;z-index:40;background:#02070c;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:10px;font:700 13px "Orbitron",sans-serif;letter-spacing:3px;color:var(--accent);transition:opacity .5s}
-  #boot .t{font-size:24px;letter-spacing:6px;text-shadow:0 0 18px var(--accent);margin-bottom:10px}
-  #boot .l{opacity:0;animation:bootin .25s forwards}
-  #boot .l b{color:var(--green)}
-  #boot .bar{width:280px;height:3px;background:rgba(0,229,255,.15);margin-top:8px}
-  #boot .bar i{display:block;height:100%;width:0;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:bootbar 1.3s ease-out forwards}
-  @keyframes bootin{to{opacity:1}}
-  @keyframes bootbar{to{width:100%}}
-
-  @media (prefers-reduced-motion: reduce){ body.fx *,body.fx::before{animation:none!important} }
-
-
-  /* ============================================================
-     APP WINDOW — when installed as an app and the title bar is
-     hidden (Chrome's ^ button), draw a slim dark drag strip where
-     the title bar was, beside the minimize/maximize/close buttons.
-     ============================================================ */
-  .titlebar{display:none}
-  @media (display-mode: window-controls-overlay){
-    .titlebar{display:flex;align-items:center;gap:8px;position:fixed;z-index:35;
-      left:env(titlebar-area-x,0);top:env(titlebar-area-y,0);width:env(titlebar-area-width,100%);height:env(titlebar-area-height,32px);
-      padding:0 12px;-webkit-app-region:drag;app-region:drag;
-      font:700 10px "Orbitron","Segoe UI",sans-serif;letter-spacing:3px;color:var(--faint)}
-    .titlebar img{width:16px;height:16px}
-    .app{height:100vh;padding-top:calc(env(titlebar-area-height,32px) + 2px)}
-  }
-
-  /* Spotify panel hidden */
-  body.nosp #spPanel{display:none}
-  /* with Spotify hidden, Jobs runs full height down the middle */
-  body.nosp .app{grid-template-columns:1fr 1.35fr 1fr}
-  body.nosp .top{grid-column:1 / -1}
-  body.nosp .mid,body.nosp .bot{display:contents}
-  body.nosp [data-tag^="MOD-01"]{grid-column:1;grid-row:2 / 4}
-  body.nosp [data-tag^="MOD-02"]{grid-column:2;grid-row:2 / 4}
-  body.nosp [data-tag^="MOD-03"]{grid-column:3;grid-row:2}
-  body.nosp [data-tag^="MOD-06"]{grid-column:3;grid-row:3}
-
-  /* Daily quote */
-  @media (max-width:1400px){ .hud .sys{display:none} }
-  .quote{flex:1;min-width:0;text-align:center;padding:0 18px;cursor:pointer}
-  .qt{font-size:1.05em;line-height:1.3;color:var(--text);font-style:italic;
-    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .qa{margin-top:4px;font-size:.7em;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:700}
-  .hud .qt{font-style:normal;font-weight:600;font-size:1.12em}
-  .hud .qa{font-family:"Orbitron",sans-serif;font-size:.6em;letter-spacing:2.5px;text-shadow:0 0 8px rgba(0,229,255,.5)}
-
-  /* ---------- modal ---------- */
-  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:10;padding:20px}
-  .scrim.open{display:flex}
-  .modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:min(560px,100%);
-    max-height:92vh;overflow:auto;padding:20px}
-  .modal h3{font-size:1.2em;margin-bottom:14px}
-  .fld{margin-bottom:12px}.fld label{display:block;color:var(--dim);font-size:.8em;margin-bottom:5px;letter-spacing:.4px}
-  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .acts{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
-  .btn{height:46px;padding:0 18px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-weight:600}
-  .btn.pri{background:var(--accent);border-color:var(--accent);color:#06121f}
-  .btn.del{color:var(--red);margin-right:auto}
-  .path{font-family:Consolas,monospace;font-size:.85em;background:var(--bg);border:1px solid var(--line);border-radius:10px;
-    padding:10px 12px;word-break:break-all;color:var(--dim);-webkit-user-select:text;user-select:text}
-  .hint{color:var(--faint);font-size:.8em;margin-top:6px;line-height:1.4}
-  .mlist .mi{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
-  .mlist .mi span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);
-    padding:10px 18px;border-radius:12px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
-  .toast.show{opacity:1}
+/* ---------- installed-app title bar (when hidden with Chrome's ^) ---------- */
+.titlebar{display:none}
+@media (display-mode: window-controls-overlay){
+  .titlebar{display:flex;align-items:center;gap:8px;position:fixed;z-index:35;
+    left:env(titlebar-area-x,0);top:env(titlebar-area-y,0);width:env(titlebar-area-width,100%);height:env(titlebar-area-height,32px);
+    padding:0 12px;-webkit-app-region:drag;app-region:drag;font:700 10px "Orbitron",sans-serif;letter-spacing:3px;color:var(--faint)}
+  .titlebar img{width:16px;height:16px}
+  .app{padding-top:calc(env(titlebar-area-height,32px) + 2px)}
+}
+/* ---------- Spotify panel (optional, Settings) ---------- */
+body.nosp #spPanel{display:none}
+.spdev{margin-left:auto;color:var(--faint);font-size:.75em;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sp{display:flex;flex-direction:column;gap:8px}
+.spnow{display:flex;gap:10px;align-items:center;min-width:0}
+.art{width:52px;height:52px;object-fit:cover;flex:none;border:1px solid var(--line);background:var(--panel2)}
+.meta{flex:1;min-width:0}
+.meta .tt{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta .ar{color:var(--dim);font-size:.9em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px}
+.sp .prog{height:4px;margin:0;background:rgba(0,229,255,.12)}.sp .prog .fill{height:100%;background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.times{display:flex;justify-content:space-between;color:var(--faint);font:700 .55em "Orbitron";margin-top:3px}
+.spctl{display:grid;grid-template-columns:1fr 1fr 1.4fr 1fr 1fr;gap:5px}
+.spctl button{height:34px;border:1px solid var(--line);background:var(--panel2)}
+.spctl .pp{border-color:var(--cyan);color:var(--cyan);background:rgba(0,229,255,.15)}
+.spmsg{color:var(--dim);text-align:center;line-height:1.4;padding:6px}
+.spbtn{display:block;margin:8px auto 0;height:38px;padding:0 18px;border:1px solid var(--cyan);color:var(--cyan);background:rgba(0,229,255,.15);font:700 .6em "Orbitron";letter-spacing:2px}
+.path{font-family:Consolas,monospace;font-size:.85em;background:rgba(0,0,0,.35);border:1px solid var(--line);padding:8px 10px;word-break:break-all;color:var(--dim);-webkit-user-select:text;user-select:text}
+.hint{color:var(--faint);font-size:.8em;margin-top:5px;line-height:1.4}
+.modal h4{font:700 .62em "Orbitron";letter-spacing:2px;color:var(--cyan);margin:16px 0 8px}
+@media (max-width:1250px){ .health{display:none} }
+@media (max-width:1000px){ .main{grid-template-columns:210px 1fr 240px} .wx .s{display:none} }
 </style>
 </head>
 <body>
 <div class="titlebar"><img src="icon.svg" alt="">APG COMMAND HUB</div>
 <div class="app">
-
-  <!-- ===== TOP BAR: clock + weather ===== -->
-  <header class="top">
+  <!-- ===== TOP BAR ===== -->
+  <header class="panel top">
     <svg class="ring" viewBox="0 0 100 100" aria-hidden="true">
       <circle class="r1" cx="50" cy="50" r="46"/><circle class="r2" cx="50" cy="50" r="37"/>
       <circle class="r3" id="secArc" cx="50" cy="50" r="37" stroke-dasharray="232.5" stroke-dashoffset="232.5" transform="rotate(-90 50 50)"/>
@@ -325,354 +208,421 @@
     <div class="clock" id="clock">--:--</div>
     <div class="date" id="date"></div>
     <div class="quote" id="quote" title="Tap for another quote"><div class="qt" id="qt"></div><div class="qa" id="qa"></div></div>
-    <div class="sys"><i></i>SYS ONLINE</div>
-    <div class="wx" id="wx">
-      <div class="ico" id="wxIco">⛅</div>
-      <div><div class="t" id="wxT">--°</div></div>
-      <div class="s" id="wxS">Weather loading…</div>
-    </div>
-    <button class="gear" id="thBtn" title="Switch look">◐</button>
-    <button class="gear" id="gear" title="Settings">⚙</button>
+    <div class="health"><div class="hl"><span>PUNCH CLEARED</span><b id="hPct">--%</b></div>
+      <svg viewBox="0 0 190 26" preserveAspectRatio="none"><polyline id="hLine" fill="none" stroke="#3dffb0" stroke-width="1.6" style="filter:drop-shadow(0 0 3px #3dffb0)"/></svg></div>
+    <div class="wx"><div class="t" id="wxT">--°</div><div class="s" id="wxS">Weather<br>loading…</div></div>
+    <button class="ibtn" id="fxBtn" title="Motion effects on/off">FX</button>
+    <button class="ibtn" id="gear" title="Settings" style="font-size:1.1em">⚙</button>
   </header>
 
-  <!-- ===== MIDDLE: Today | Jobs | Punch list ===== -->
-  <section class="mid">
-    <div class="panel" data-tag="MOD-01 // SCHEDULE">
-      <div class="ph"><span class="dot" style="background:var(--accent)"></span><h2>Today</h2>
-        <button class="add" id="agAdd">+ Add</button></div>
-      <div class="pb" id="today"></div>
+  <section class="main">
+    <!-- ===== LEFT: attention + to-do ===== -->
+    <div class="col">
+      <div class="panel" data-tag="SIG // ATTENTION" style="flex:none;max-height:38%">
+        <div class="ph"><span class="dia" style="color:var(--amber);background:var(--amber)"></span><h2>Attention</h2></div>
+        <div class="pb" id="sig"></div>
+      </div>
+      <div class="panel" data-tag="MOD-01 // TO-DO" style="flex:1">
+        <div class="ph"><span class="dia" style="color:var(--cyan);background:var(--cyan)"></span><h2>To-Do</h2><span class="cnt" id="todoCnt"></span></div>
+        <form class="addrow" id="todoForm"><input id="todoIn" placeholder="Add a to-do…" autocomplete="off"><button>+</button></form>
+        <div class="pb" id="todo"></div>
+      </div>
     </div>
 
-    <div class="panel" data-tag="MOD-02 // ACTIVE OPS">
-      <div class="ph"><span class="dot" style="background:var(--green)"></span><h2>Jobs</h2>
-        <button class="add" id="jobAdd">+ Job</button></div>
-      <div class="pb"><div class="jobs" id="jobs"></div></div>
+    <!-- ===== CENTER: constellation ===== -->
+    <div class="panel stage" data-tag="MOD-02 // ACTIVE OPS">
+      <canvas id="cv"></canvas>
+      <div class="ov legend"><div><b style="color:var(--cyan);background:var(--cyan)"></b>ACTIVE</div>
+        <div><b style="color:var(--amber);background:var(--amber)"></b>PUNCH</div><div style="color:var(--faint)">SIZE = OPEN PUNCH ITEMS</div></div>
+      <div class="ov views"><button class="on" id="vOrbit">◉ ORBIT</button><button id="vTiles">▦ ALL JOBS</button><button class="addjob" id="addJob">+ JOB</button></div>
+      <div class="tiles" id="tiles"></div>
+      <div class="ov feed"><h3>SYSTEM FEED <span>● LIVE</span></h3><div id="feed"></div></div>
+      <div class="ov tapnote">TAP A JOB TO OPEN IT</div>
     </div>
 
-    <div class="panel" data-tag="MOD-03 // OPEN ITEMS">
-      <div class="ph"><span class="dot" style="background:var(--amber)"></span><h2>Punch List</h2>
-        <button class="add" id="puAdd">+ Add</button></div>
-      <div class="pb" id="punch"></div>
-    </div>
-  </section>
-
-  <!-- ===== BOTTOM: Spotify | Timer ===== -->
-  <section class="bot">
-    <div class="panel" id="spPanel" data-tag="MOD-05 // AUDIO">
-      <div class="ph"><span class="dot" style="background:#1db954"></span><h2>Spotify</h2><span class="spdev" id="spDev"></span></div>
-      <div class="pb sp" id="sp"></div>
-      <div class="eq" id="eq"></div>
-    </div>
-    <div class="panel" data-tag="MOD-06 // CHRONO">
-      <div class="ph"><span class="dot" style="background:var(--red)"></span><h2>Timer</h2></div>
-      <div class="pb">
-        <div class="tbig" id="tDisp">00:00</div>
-        <div class="tbarw"><div class="tbar" id="tBar"></div></div>
-        <div class="tbtns" id="tIdle">
-          <button class="tb" data-m="5">5m</button><button class="tb" data-m="15">15m</button>
-          <button class="tb" data-m="30">30m</button><button class="tb" data-m="60">1h</button>
-          <button class="tb sw" id="tSw" title="Stopwatch — counts up">⏱</button>
+    <!-- ===== RIGHT: selected job + timer ===== -->
+    <div class="col">
+      <div class="panel" data-tag="MOD-03 // SELECTED JOB" style="flex:1">
+        <div class="ph"><span class="dia" id="selDia" style="color:var(--cyan);background:var(--cyan)"></span><h2>Selected Job</h2></div>
+        <div id="jobBox" style="display:flex;flex-direction:column;flex:1;min-height:0"></div>
+      </div>
+      <div class="panel" id="spPanel" data-tag="MOD-05 // AUDIO" style="flex:none">
+        <div class="ph"><span class="dia" style="color:#1db954;background:#1db954"></span><h2>Spotify</h2><span class="spdev" id="spDev"></span></div>
+        <div class="pb sp" id="sp"></div><div id="eq" style="display:none"></div>
+      </div>
+      <div class="panel" data-tag="MOD-06 // CHRONO" style="flex:none">
+        <div class="ph"><span class="dia" style="color:var(--red);background:var(--red)"></span><h2>Timer</h2></div>
+        <div style="padding:0 12px 16px">
+          <div class="tbig" id="tDisp">00:00</div>
+          <div class="tbarw"><div class="tbar" id="tBar"></div></div>
+          <div class="tbtns" id="tIdle"><button class="tb" data-m="5">5m</button><button class="tb" data-m="15">15m</button>
+            <button class="tb" data-m="30">30m</button><button class="tb" data-m="60">1h</button><button class="tb" id="tSw" title="Stopwatch">⏱</button></div>
+          <div class="tbtns run2" id="tRun"><button class="tb pz" id="tPause">Pause</button><button class="tb st" id="tStop">Stop</button></div>
+          <div class="tlbl" id="tLbl"></div>
         </div>
-        <div class="tbtns run2" id="tRun">
-          <button class="tb pz" id="tPause">Pause</button><button class="tb stop2" id="tStop">Stop</button>
-        </div>
-        <div class="timerlbl" id="tLbl"></div>
       </div>
     </div>
   </section>
 </div>
-
 <div class="scrim" id="scrim"><div class="modal" id="modal"></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
 /* ============================================================
-   DATA — saved in this browser (localStorage). Edit via the UI.
+   DATA (preview uses its own sample data, saved in this browser)
    ============================================================ */
-const KEY = "apgHub.v1";
-const DEFAULTS = {
+const KEY = "apgHub.v2";                      // new layout's saved data
+const OLD_KEY = "apgHub.v1";                  // the previous hub's saved data (left untouched)
+let uid = Date.now();
+const nid = () => ++uid;
+const QUOTES = [
+  "Leadership is influence, nothing more, nothing less.","Everything rises and falls on leadership.",
+  "A leader is one who knows the way, goes the way, and shows the way.","Change is inevitable. Growth is optional.",
+  "Dreams don't work unless you do.","Sometimes you win, sometimes you learn.","Teamwork makes the dream work.",
+  "Leadership develops daily, not in a day.","People buy into the leader before they buy into the vision.",
+  "The first person you lead is you.","Talent is a gift, but character is a choice.",
+  "One is too small a number to achieve greatness.","Learn to say no to the good so you can say yes to the best."
+];
+const FRESH = () => ({
+  fx: true, quoteBump: 0, selected: null, showSpotify: false,
   weather: { name: "Set location in ⚙", lat: 27.3364, lon: -82.5307 },
-  jobs: [
-    { id: 1, num: "0001", name: "Sample job — tap to edit", client: "Client name", status: "Active",
-      path: "C:\\Jobs\\0001 - Sample", notes: "" }
-  ],
-  launch: [
-    { label: "Design Studio", url: "https://example.com", color: "#4da3ff" },
-    { label: "Project Tracker", url: "https://example.com", color: "#3fcf8e" },
-    { label: "Acceptance Form", url: "https://example.com", color: "#f5b44a" },
-    { label: "Google Calendar", url: "https://calendar.google.com", color: "#a78bfa" },
-    { label: "Outlook", url: "https://outlook.office.com", color: "#4da3ff" },
-    { label: "Crestron Portal", url: "https://www.crestron.com", color: "#ff6b6b" }
-  ],
-  theme: "hud",
-  quoteBump: 0,
-  quotes: [
-    "Leadership is influence, nothing more, nothing less.",
-    "Everything rises and falls on leadership.",
-    "A leader is one who knows the way, goes the way, and shows the way.",
-    "Change is inevitable. Growth is optional.",
-    "Dreams don't work unless you do.",
-    "Sometimes you win, sometimes you learn.",
-    "Teamwork makes the dream work.",
-    "Leadership develops daily, not in a day.",
-    "People buy into the leader before they buy into the vision.",
-    "The first person you lead is you.",
-    "Talent is a gift, but character is a choice.",
-    "One is too small a number to achieve greatness.",
-    "Learn to say no to the good so you can say yes to the best."
-  ],
-  showSpotify: false,
-  fx: "high",
-  agenda: [],
-  agendaDay: "",
-  punch: [
-    { text: "Tap + Add to create a punch item", done: false },
-    { text: "Tap the box to check it off", done: true }
-  ]
-};
-
-let S;
-function load(){
-  try { S = JSON.parse(localStorage.getItem(KEY)) || structuredClone(DEFAULTS); }
-  catch(e){ S = structuredClone(DEFAULTS); }
-  for (const k in DEFAULTS) if (S[k] === undefined) S[k] = structuredClone(DEFAULTS[k]);
+  jobs: [ { id: 1, num: "0001", name: "Sample job — tap EDIT", client: "Client name", status: "Active", path: "" } ],
+  punch: [], todo: [], feed: [], quotes: QUOTES.slice()
+});
+// First run of the new layout: bring everything over from the old hub.
+function carryOver(){
+  let o = null; try { o = JSON.parse(localStorage.getItem(OLD_KEY)); } catch(e){}
+  if (!o) return FRESH();
+  const n = FRESH();
+  if (Array.isArray(o.jobs) && o.jobs.length) n.jobs = o.jobs.map(j => ({ id: j.id ?? nid(), num: j.num || "", name: j.name || "", client: j.client || "",
+    status: ["Bid","Active","Punch","Closeout","Hold"].includes(j.status) ? j.status : "Active", path: j.path || "", notes: j.notes || "" }));
+  if (Array.isArray(o.punch)) n.todo = o.punch.map(p => ({ id: nid(), text: p.text, done: !!p.done }));
+  if (o.weather && typeof o.weather.lat === "number") n.weather = o.weather;
+  if (Array.isArray(o.quotes) && o.quotes.length) n.quotes = o.quotes;
+  n.quoteBump = o.quoteBump || 0;
+  n.showSpotify = !!o.showSpotify;
+  n.fx = o.fx !== "low";
+  const first = n.jobs.find(j => j.status === "Punch") || n.jobs.find(j => j.status === "Active");
+  n.selected = first ? first.id : null;
+  n.feed = [{ t: "--:--", h: "Upgraded to Constellation — your jobs and punch list (now To-Do) came across" }];
+  return n;
 }
-function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
-load();
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY)) || carryOver(); } catch(e){ S = carryOver(); }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} };
+for (const k of ["jobs","punch","todo","feed"]) if (!Array.isArray(S[k])) S[k] = [];
+if (!Array.isArray(S.quotes) || !S.quotes.length) S.quotes = QUOTES.slice();
+save();
 
-const $ = s => document.querySelector(s);
+const $ = q => document.querySelector(q);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const todayKey = () => new Date().toDateString();
-function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),1800); }
-
-/* ---------- modal helper ---------- */
-function openModal(html, wire){ $("#modal").innerHTML = html; $("#scrim").classList.add("open"); wire && wire($("#modal")); }
+const STC = { Active:"#00e5ff", Punch:"#ffb340", Closeout:"#ffcf6b", Bid:"#a88bff", Hold:"#ff4d6d" };
+const STATUSES = ["Bid","Active","Punch","Closeout","Hold"];
+const onMap = j => j.status === "Active" || j.status === "Punch";
+const openFor = id => S.punch.filter(p => p.job === id && !p.done).length;
+const jobById = id => S.jobs.find(j => j.id === id);
+function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),1800); }
+function log(html){ const d=new Date(); S.feed.unshift({ t:`${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`, h:html }); S.feed = S.feed.slice(0,30); save(); renderFeed(); }
+function openModal(html, wire){ $("#modal").innerHTML=html; $("#scrim").classList.add("open"); wire && wire($("#modal")); }
 function closeModal(){ $("#scrim").classList.remove("open"); }
 $("#scrim").addEventListener("click", e => { if (e.target.id === "scrim") closeModal(); });
 
 /* ============================================================
-   CLOCK
+   TOP BAR — clock, quote, punch-cleared line, weather
    ============================================================ */
 function tickClock(){
-  const d = new Date();
-  let h = d.getHours(), m = String(d.getMinutes()).padStart(2,"0");
-  const ap = h >= 12 ? "PM" : "AM"; h = h % 12 || 12;
-  $("#clock").innerHTML = `${h}:${m}<small>${ap}</small>`;
-  const sec = d.getSeconds();
-  $("#secArc").setAttribute("stroke-dashoffset", (232.5 * (1 - sec/60)).toFixed(1));
-  $("#ringTxt").textContent = String(sec).padStart(2,"0");
-  $("#date").innerHTML = `<b>${d.toLocaleDateString(undefined,{weekday:"long"})}</b>${d.toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"})}`;
+  const d = new Date(); let h = d.getHours(); const ap = h>=12?"PM":"AM"; h = h%12||12;
+  $("#clock").innerHTML = `${h}:${String(d.getMinutes()).padStart(2,"0")}<small>${ap}</small>`;
+  $("#date").innerHTML = `<b>${d.toLocaleDateString(undefined,{weekday:"long"})}</b><span>${d.toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"})}</span>`;
+  const s = d.getSeconds(); $("#secArc").setAttribute("stroke-dashoffset",(232.5*(1-s/60)).toFixed(1)); $("#ringTxt").textContent = String(s).padStart(2,"0");
 }
-
-/* ============================================================
-   WEATHER (Open-Meteo, free, no key)
-   ============================================================ */
-const WX = c => c===0?["☀️","Clear"]:c<=2?["🌤️","Partly cloudy"]:c===3?["☁️","Overcast"]:c<=48?["🌫️","Fog"]:
-  c<=57?["🌦️","Drizzle"]:c<=67?["🌧️","Rain"]:c<=77?["🌨️","Snow"]:c<=82?["🌧️","Showers"]:["⛈️","Storms"];
+function renderQuote(){
+  const L = S.quotes.filter(Boolean); if (!L.length) return;
+  const d = new Date(), day = Math.floor((d - new Date(d.getFullYear(),0,0))/864e5);
+  const line = L[(day + (S.quoteBump||0)) % L.length];
+  const m = line.match(/^(.*\S)\s+[—–]\s+(.+)$/);
+  $("#qt").textContent = "\u201C" + (m ? m[1] : line) + "\u201D"; $("#qa").textContent = "— " + (m ? m[2] : "John C. Maxwell");
+}
+$("#quote").onclick = () => { S.quoteBump++; save(); renderQuote(); };
+let hHist = [];
+function renderHealth(){
+  const live = S.punch.filter(p => { const j = jobById(p.job); return j && onMap(j); });
+  const pct = live.length ? Math.round(live.filter(p=>p.done).length / live.length * 100) : 100;
+  $("#hPct").textContent = pct + "%";
+  if (!hHist.length) hHist = Array.from({length:40}, () => pct);
+  hHist.push(pct + (Math.random()*2-1)); hHist = hHist.slice(-40);
+  $("#hLine").setAttribute("points", hHist.map((v,i) => `${(i/39*190).toFixed(1)},${(24 - Math.max(0,Math.min(100,v))/100*22).toFixed(1)}`).join(" "));
+}
 async function loadWeather(){
   const w = S.weather;
   try{
-    const u = `https://api.open-meteo.com/v1/forecast?latitude=${w.lat}&longitude=${w.lon}`+
-      `&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max`+
-      `&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=1`;
-    const r = await fetch(u); const j = await r.json();
-    const [ico, txt] = WX(j.current.weather_code);
-    $("#wxIco").textContent = ico;
+    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${w.lat}&longitude=${w.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=auto&forecast_days=1`);
+    const j = await r.json();
     $("#wxT").textContent = Math.round(j.current.temperature_2m) + "°";
-    $("#wxS").innerHTML = `${esc(w.name)} · ${txt}<br>H ${Math.round(j.daily.temperature_2m_max[0])}° L ${Math.round(j.daily.temperature_2m_min[0])}° · Rain ${j.daily.precipitation_probability_max[0] ?? 0}%`;
-  }catch(e){
-    $("#wxIco").textContent = "🌡️"; $("#wxT").textContent = "--°";
-    $("#wxS").innerHTML = `${esc(w.name)}<br>Weather unavailable here`;
-  }
+    $("#wxS").innerHTML = `${esc(w.name)}<br>H ${Math.round(j.daily.temperature_2m_max[0])}° L ${Math.round(j.daily.temperature_2m_min[0])}°`;
+  }catch(e){ $("#wxT").textContent = "--°"; $("#wxS").innerHTML = `${esc(w.name)}<br>Weather offline`; }
 }
 
 /* ============================================================
-   TODAY (agenda)
+   LEFT — attention signals + to-do
    ============================================================ */
-function fmt12(t){ const [h,m]=t.split(":").map(Number); return `${h%12||12}:${String(m).padStart(2,"0")}${h>=12?"p":"a"}`; }
-function renderToday(){
-  if (S.agendaDay !== todayKey()){ S.agenda = []; S.agendaDay = todayKey(); save(); }   // fresh list each day
-  const now = new Date(), mins = now.getHours()*60 + now.getMinutes();
-  const items = [...S.agenda].sort((a,b)=>a.time.localeCompare(b.time));
-  const toMin = t => { const [h,m]=t.split(":").map(Number); return h*60+m; };
-  const next = items.find(i => toMin(i.time) >= mins);
-  let html = "";
-  if (next){
-    const diff = toMin(next.time) - mins;
-    const cd = diff === 0 ? "Starting now" : diff < 60 ? `in ${diff} min` : `in ${Math.floor(diff/60)}h ${diff%60}m`;
-    html += `<div class="next"><div class="lbl">Up next · ${fmt12(next.time)}</div><div class="ti">${esc(next.title)}</div><div class="cd">${cd}</div></div>`;
-  }
-  if (!items.length) html += `<div class="empty">Nothing on the list yet.<br>Tap <b>+ Add</b> for meetings, site visits, calls.</div>`;
-  items.forEach(i => {
-    html += `<div class="ag ${toMin(i.time) < mins ? "past":""}"><div class="tm">${fmt12(i.time)}</div><div>${esc(i.title)}</div>
-      <button class="x" data-id="${i.id}">✕</button></div>`;
+function renderSignals(){
+  const rows = [];
+  S.jobs.filter(j => j.status === "Punch").forEach(j => {
+    const o = openFor(j.id);
+    rows.push(o ? { c:"a", i:"▲", t:`<b>${j.num}</b> in punch — ${o} open item${o>1?"s":""}`, job:j.id }
+                : { c:"g", i:"✔", t:`<b>${j.num}</b> punch clear — ready for closeout?`, job:j.id });
   });
-  $("#today").innerHTML = html;
-  $("#today").querySelectorAll(".x").forEach(b => b.onclick = () => { S.agenda = S.agenda.filter(a => a.id != b.dataset.id); save(); renderToday(); });
+  S.jobs.filter(j => j.status === "Active" && openFor(j.id) >= 3).forEach(j => rows.push({ c:"c", i:"◆", t:`<b>${j.num}</b> has ${openFor(j.id)} open items`, job:j.id }));
+  S.jobs.filter(j => j.status === "Hold").forEach(j => rows.push({ c:"r", i:"■", t:`<b>${j.num}</b> on hold`, job:j.id }));
+  const td = S.todo.filter(t => !t.done).length; if (td) rows.push({ c:"c", i:"●", t:`${td} to-do${td>1?"s":""} open` });
+  $("#sig").innerHTML = rows.length ? rows.map(r => `<div class="sig ${r.c}" ${r.job?`data-job="${r.job}"`:""}><i>${r.i}</i><div>${r.t}</div></div>`).join("")
+                                    : `<div class="empty">All clear.</div>`;
+  $("#sig").querySelectorAll("[data-job]").forEach(el => el.onclick = () => select(+el.dataset.job));
 }
-$("#agAdd").onclick = () => {
-  const d = new Date(); d.setMinutes(Math.ceil(d.getMinutes()/15)*15);
-  const t = `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()%60).padStart(2,"0")}`;
-  openModal(`<h3>Add to today</h3>
-    <div class="row2"><div class="fld"><label>TIME</label><input type="time" id="aT" value="${t}"></div>
-    <div class="fld"><label>WHAT</label><input id="aW" placeholder="Site walk — 4313"></div></div>
-    <div class="acts"><button class="btn" id="c">Cancel</button><button class="btn pri" id="s">Add</button></div>`, m => {
-      m.querySelector("#aW").focus();
-      m.querySelector("#c").onclick = closeModal;
-      m.querySelector("#s").onclick = () => {
-        const title = m.querySelector("#aW").value.trim(), time = m.querySelector("#aT").value;
-        if (!title || !time) return;
-        S.agenda.push({ id: Date.now(), time, title }); save(); renderToday(); closeModal();
-      };
-    });
-};
+function listHTML(items){
+  return items.map(it => `<div class="it ${it.done?"done":""}" data-id="${it.id}"><button class="chk">${it.done?"✓":""}</button><div class="tx">${esc(it.text)}</div><button class="x">✕</button></div>`).join("");
+}
+function renderTodo(){
+  const el = $("#todo"), open = S.todo.filter(t=>!t.done).length;
+  $("#todoCnt").textContent = open ? open + " OPEN" : "";
+  el.innerHTML = S.todo.length ? listHTML(S.todo) + (S.todo.some(t=>t.done) ? `<button class="clr" id="todoClr">Clear finished</button>` : "")
+                               : `<div class="empty">Nothing to do. Nice.</div>`;
+  el.querySelectorAll(".it").forEach(r => {
+    const t = S.todo.find(x => x.id == r.dataset.id);
+    r.querySelector(".chk").onclick = () => { t.done = !t.done; if (t.done) log(`Done: <b>${esc(t.text)}</b>`); save(); renderTodo(); renderSignals(); };
+    r.querySelector(".x").onclick = () => { S.todo = S.todo.filter(x => x !== t); save(); renderTodo(); renderSignals(); };
+  });
+  const c = $("#todoClr"); if (c) c.onclick = () => { S.todo = S.todo.filter(x=>!x.done); save(); renderTodo(); };
+}
+$("#todoForm").onsubmit = e => { e.preventDefault(); const v = $("#todoIn").value.trim(); if (!v) return;
+  S.todo.unshift({ id:nid(), text:v, done:false }); $("#todoIn").value = ""; log(`To-do added: <b>${esc(v)}</b>`); save(); renderTodo(); renderSignals(); };
 
 /* ============================================================
-   JOBS
+   RIGHT — selected job + its punch list
    ============================================================ */
-const STATUSES = ["Bid","Active","Punch","Closeout","Hold"];
-function renderJobs(){
-  const order = { Active:0, Punch:1, Closeout:2, Bid:3, Hold:4 };
-  const list = [...S.jobs].sort((a,b) => (order[a.status]-order[b.status]) || a.num.localeCompare(b.num));
-  $("#jobs").innerHTML = list.length ? list.map(j => `
-    <button class="job" data-id="${j.id}">
-      <div class="n">${esc(j.num)}</div><div class="nm">${esc(j.name)}</div><div class="cl">${esc(j.client)}</div>
-      <span class="pill st-${j.status}">${j.status}</span>
-    </button>`).join("") : `<div class="empty">No jobs yet. Tap <b>+ Job</b>.</div>`;
-  $("#jobs").querySelectorAll(".job").forEach(b => b.onclick = () => jobDetail(S.jobs.find(j => j.id == b.dataset.id)));
-}
-function copy(text, msg){
-  (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
-    .then(() => toast(msg || "Copied — press Win+R, then Ctrl+V"))
-    .catch(() => toast("Couldn't copy — select the path and copy it"));
-}
-function jobDetail(j){
-  openModal(`<h3>${esc(j.num)} · ${esc(j.name)}</h3>
-    <div class="fld"><label>CLIENT</label><div>${esc(j.client) || "—"}</div></div>
-    <div class="fld"><label>STATUS</label><span class="pill st-${j.status}">${j.status}</span></div>
-    <div class="fld"><label>JOB FOLDER</label><div class="path">${esc(j.path) || "—"}</div>
-      <div class="hint">Tap Copy, then on your laptop press <b>Win + R</b>, paste, Enter — the folder opens.</div></div>
-    ${j.notes ? `<div class="fld"><label>NOTES</label><div style="white-space:pre-wrap;line-height:1.4">${esc(j.notes)}</div></div>` : ""}
-    <div class="acts"><button class="btn" id="e">Edit</button><button class="btn" id="c">Close</button>
-      <button class="btn pri" id="cp">Copy folder path</button></div>`, m => {
-      m.querySelector("#c").onclick = closeModal;
-      m.querySelector("#cp").onclick = () => copy(j.path);
-      m.querySelector("#e").onclick = () => jobEdit(j);
-    });
+function select(id){ S.selected = id; save(); renderJob(); if (tilesOn) renderTiles(); }
+function renderJob(){
+  const j = jobById(S.selected), box = $("#jobBox");
+  if (!j){ box.innerHTML = `<div class="empty" style="margin-top:30px">Tap a job in the constellation<br>to see its punch list.</div>`; return; }
+  const items = S.punch.filter(p => p.job === j.id), done = items.filter(p=>p.done).length, col = STC[j.status] || "#00e5ff";
+  $("#selDia").style.color = col; $("#selDia").style.background = col;
+  box.innerHTML = `<div class="jobhead">
+      <div class="jn">${esc(j.num)}</div><div class="jt">${esc(j.name)}</div><div class="jc">${esc(j.client)}</div>
+      <div class="jr"><span class="pill" style="color:${col};margin:0">${j.status.toUpperCase()}</span>
+        <button class="sbtn" id="jCopy">COPY FOLDER</button><button class="sbtn" id="jEdit">EDIT</button></div>
+      <div class="prog"><i style="width:${items.length ? done/items.length*100 : 0}%"></i></div>
+      <div class="psub"><span>PUNCH ${done}/${items.length} DONE</span><span>${items.length-done} OPEN</span></div></div>
+    <form class="addrow" id="pForm" style="padding-top:10px"><input id="pIn" placeholder="Add punch item for ${esc(j.num)}…" autocomplete="off"><button>+</button></form>
+    <div class="pb" id="plist">${items.length ? listHTML(items) + (done ? `<button class="clr" id="pClr">Clear finished</button>` : "") : `<div class="empty">No punch items yet.</div>`}</div>`;
+  box.querySelectorAll(".it").forEach(r => {
+    const p = S.punch.find(x => x.id == r.dataset.id);
+    r.querySelector(".chk").onclick = () => { p.done = !p.done; if (p.done) log(`Checked off <b>${esc(p.text)}</b> · ${j.num}`); save(); refreshAll(); };
+    r.querySelector(".x").onclick = () => { S.punch = S.punch.filter(x => x !== p); save(); refreshAll(); };
+  });
+  $("#pForm").onsubmit = e => { e.preventDefault(); const v = $("#pIn").value.trim(); if (!v) return;
+    S.punch.unshift({ id:nid(), job:j.id, text:v, done:false }); log(`Punch added to <b>${j.num}</b>: ${esc(v)}`); save(); refreshAll(); setTimeout(()=>$("#pIn").focus(),0); };
+  const c = $("#pClr"); if (c) c.onclick = () => { S.punch = S.punch.filter(x => !(x.job === j.id && x.done)); save(); refreshAll(); };
+  $("#jCopy").onclick = () => { if (!j.path) return toast("NO FOLDER PATH — TAP EDIT");
+    (navigator.clipboard ? navigator.clipboard.writeText(j.path) : Promise.reject()).then(()=>toast("COPIED — WIN+R, CTRL+V")).catch(()=>toast("COULDN'T COPY")); };
+  $("#jEdit").onclick = () => jobEdit(j);
 }
 function jobEdit(j){
-  const isNew = !j; j = j || { id: Date.now(), num:"", name:"", client:"", status:"Active", path:"", notes:"" };
-  openModal(`<h3>${isNew ? "New job" : "Edit job"}</h3>
+  const isNew = !j; j = j || { id:nid(), num:"", name:"", client:"", status:"Active", path:"" };
+  openModal(`<h3>${isNew?"NEW JOB":"EDIT JOB"}</h3>
     <div class="row2"><div class="fld"><label>JOB #</label><input id="fN" value="${esc(j.num)}"></div>
       <div class="fld"><label>STATUS</label><select id="fS">${STATUSES.map(s=>`<option ${s===j.status?"selected":""}>${s}</option>`).join("")}</select></div></div>
     <div class="fld"><label>JOB NAME</label><input id="fM" value="${esc(j.name)}"></div>
     <div class="fld"><label>CLIENT / GC</label><input id="fC" value="${esc(j.client)}"></div>
-    <div class="fld"><label>FOLDER PATH</label><input id="fP" value="${esc(j.path)}" placeholder="C:\\Jobs\\4313 - ..."></div>
-    <div class="fld"><label>NOTES</label><textarea id="fO">${esc(j.notes)}</textarea></div>
-    <div class="acts">${isNew ? "" : `<button class="btn del" id="d">Delete</button>`}
-      <button class="btn" id="c">Cancel</button><button class="btn pri" id="s">Save</button></div>`, m => {
-      m.querySelector("#c").onclick = closeModal;
-      if (!isNew) m.querySelector("#d").onclick = () => {
-        const b = m.querySelector("#d");
-        if (b.dataset.sure){ S.jobs = S.jobs.filter(x => x.id !== j.id); save(); renderJobs(); closeModal(); }
-        else { b.dataset.sure = 1; b.textContent = "Tap again to delete"; }
-      };
-      m.querySelector("#s").onclick = () => {
-        Object.assign(j, { num:m.querySelector("#fN").value.trim(), status:m.querySelector("#fS").value,
-          name:m.querySelector("#fM").value.trim(), client:m.querySelector("#fC").value.trim(),
-          path:m.querySelector("#fP").value.trim(), notes:m.querySelector("#fO").value.trim() });
-        if (!j.num && !j.name) return;
-        if (isNew) S.jobs.push(j);
-        save(); renderJobs(); closeModal();
-      };
-    });
-}
-$("#jobAdd").onclick = () => jobEdit(null);
-
-/* ============================================================
-   PUNCH LIST
-   ============================================================ */
-function renderPunch(){
-  const el = $("#punch");
-  if (!S.punch.length){ el.innerHTML = `<div class="empty">All clear. ✔</div>`; return; }
-  el.innerHTML = S.punch.map((p,i) => `<div class="pi ${p.done?"done":""}">
-      <button class="chk" data-i="${i}">${p.done?"✓":""}</button><div class="tx">${esc(p.text)}</div>
-      <button class="x" data-i="${i}">✕</button></div>`).join("") +
-    (S.punch.some(p=>p.done) ? `<button class="clr" id="clrDone">Clear finished</button>` : "");
-  el.querySelectorAll(".chk").forEach(b => b.onclick = () => { S.punch[b.dataset.i].done ^= true; save(); renderPunch(); });
-  el.querySelectorAll(".x").forEach(b => b.onclick = () => { S.punch.splice(b.dataset.i,1); save(); renderPunch(); });
-  const c = $("#clrDone"); if (c) c.onclick = () => { S.punch = S.punch.filter(p=>!p.done); save(); renderPunch(); };
-}
-$("#puAdd").onclick = () => openModal(`<h3>Add punch item</h3>
-  <div class="fld"><input id="pT" placeholder="Label rack cables — 4313"></div>
-  <div class="acts"><button class="btn" id="c">Cancel</button><button class="btn pri" id="s">Add</button></div>`, m => {
-    const inp = m.querySelector("#pT"); inp.focus();
-    const go = () => { const t = inp.value.trim(); if (!t) return; S.punch.unshift({ text:t, done:false }); save(); renderPunch(); closeModal(); };
-    m.querySelector("#c").onclick = closeModal; m.querySelector("#s").onclick = go;
-    inp.onkeydown = e => { if (e.key === "Enter") go(); };
+    <div class="fld"><label>FOLDER PATH</label><input id="fP" value="${esc(j.path)}" placeholder="C:\\Jobs\\4313 - …"></div>
+    <div class="acts">${isNew?"":`<button class="btn del" id="d">DELETE</button>`}<button class="btn" id="c">CANCEL</button><button class="btn pri" id="s">SAVE</button></div>`, m => {
+    m.querySelector("#c").onclick = closeModal;
+    if (!isNew) m.querySelector("#d").onclick = e => { const b = e.target;
+      if (b.dataset.sure){ S.jobs = S.jobs.filter(x=>x!==j); S.punch = S.punch.filter(p=>p.job!==j.id); if (S.selected===j.id) S.selected=null; save(); closeModal(); refreshAll(); }
+      else { b.dataset.sure=1; b.textContent="TAP AGAIN"; } };
+    m.querySelector("#s").onclick = () => {
+      Object.assign(j, { num:m.querySelector("#fN").value.trim(), status:m.querySelector("#fS").value, name:m.querySelector("#fM").value.trim(),
+        client:m.querySelector("#fC").value.trim(), path:m.querySelector("#fP").value.trim() });
+      if (!j.num) return;
+      if (isNew){ S.jobs.push(j); S.selected = j.id; log(`New job <b>${esc(j.num)}</b> added`); }
+      save(); closeModal(); refreshAll(); layoutNodes();
+    };
   });
+}
+$("#addJob").onclick = () => jobEdit(null);
 
 /* ============================================================
-   TIMER
+   FEED + TILES
    ============================================================ */
-// mode: "idle" | "down" (countdown) | "up" (stopwatch) | "done"
-let T = { mode:"idle", total:0, endAt:0, startAt:0, paused:false, left:0, acc:0 };
-let tEnd = 0, tTotal = 0;
-function beep(){
-  try{ const a = new (window.AudioContext||window.webkitAudioContext)();
-    [0,.35,.7].forEach(s => { const o=a.createOscillator(), g=a.createGain(); o.frequency.value=880; o.connect(g); g.connect(a.destination);
-      g.gain.setValueAtTime(.2,a.currentTime+s); g.gain.exponentialRampToValueAtTime(.001,a.currentTime+s+.3); o.start(a.currentTime+s); o.stop(a.currentTime+s+.3); });
-  }catch(e){}
+function renderFeed(){
+  const f = S.feed.slice(0,3);
+  $("#feed").innerHTML = f.length ? f.map(x => `<div class="fl"><em>${x.t}</em>${x.h}</div>`).join("") : `<div class="fl">Waiting for activity…</div>`;
 }
-function fmtT(ms){
-  const t = Math.max(0, Math.round(ms/1000)), h = Math.floor(t/3600), m = Math.floor(t%3600/60), sec = t%60;
-  return (h ? h + ":" + String(m).padStart(2,"0") : String(m).padStart(2,"0")) + ":" + String(sec).padStart(2,"0");
+let tilesOn = false;
+function renderTiles(){
+  const order = { Punch:0, Active:1, Hold:2, Bid:3, Closeout:4 };
+  $("#tiles").innerHTML = [...S.jobs].sort((a,b)=>(order[a.status]-order[b.status])||a.num.localeCompare(b.num)).map(j => {
+    const o = openFor(j.id), c = STC[j.status];
+    return `<button class="tile ${onMap(j)?"":"dimmed"}" data-id="${j.id}" style="${j.id===S.selected?`border-color:${c};box-shadow:0 0 14px ${c}55`:""}">
+      <div class="n">${esc(j.num)}</div><div class="nm">${esc(j.name)}</div><div class="cl">${esc(j.client)}${o?` · ${o} open`:""}</div>
+      <span class="pill" style="color:${c}">${j.status.toUpperCase()}</span></button>`; }).join("");
+  $("#tiles").querySelectorAll(".tile").forEach(t => t.onclick = () => select(+t.dataset.id));
 }
-const hm = ts => new Date(ts).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
+$("#vOrbit").onclick = () => { tilesOn = false; $("#tiles").classList.remove("on"); $("#vOrbit").classList.add("on"); $("#vTiles").classList.remove("on"); };
+$("#vTiles").onclick = () => { tilesOn = true; renderTiles(); $("#tiles").classList.add("on"); $("#vTiles").classList.add("on"); $("#vOrbit").classList.remove("on"); };
+
+/* ============================================================
+   TIMER — countdown with pause, or stopwatch
+   ============================================================ */
+let T = { mode:"idle" };
+function beep(){ try{ const a=new (window.AudioContext||window.webkitAudioContext)(); [0,.35,.7].forEach(s=>{const o=a.createOscillator(),g=a.createGain();o.frequency.value=880;o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(.2,a.currentTime+s);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+s+.3);o.start(a.currentTime+s);o.stop(a.currentTime+s+.3);}); }catch(e){} }
+const fmtT = ms => { const t=Math.max(0,Math.round(ms/1000)),h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60; return (h?h+":"+String(m).padStart(2,"0"):String(m).padStart(2,"0"))+":"+String(s).padStart(2,"0"); };
+const hm = ts => new Date(ts).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
 function tickTimer(){
-  const d = $("#tDisp"), lbl = $("#tLbl"), idle = $("#tIdle"), run = $("#tRun"), pz = $("#tPause"), stop = $("#tStop");
-  const now = Date.now();
-  idle.style.display = (T.mode === "idle") ? "grid" : "none";
-  run.style.display  = (T.mode === "idle") ? "none" : "grid";
-  pz.style.display   = (T.mode === "done") ? "none" : "block";
-  run.style.gridTemplateColumns = (T.mode === "done") ? "1fr" : "";
-  stop.textContent   = (T.mode === "done") ? "Dismiss" : "Stop";
-  pz.textContent = T.paused ? "Resume" : "Pause"; pz.classList.toggle("go", T.paused);
-  tEnd = 0;
-  if (T.mode === "idle"){ d.textContent = "00:00"; d.className = "tbig"; lbl.textContent = "Pick a time, or ⏱ to time a task"; return; }
-  if (T.mode === "done"){ d.textContent = "DONE"; d.className = "tbig done"; lbl.textContent = `${Math.round(T.total/60000)} min timer finished`; return; }
-  if (T.mode === "down"){
-    const left = T.paused ? T.left : T.endAt - now;
-    d.textContent = fmtT(left);
-    d.className = "tbig " + (T.paused ? "paused" : "run");
-    lbl.textContent = T.paused ? `Paused · ${fmtT(left)} left` : `${Math.round(T.total/60000)} min timer · ends ${hm(T.endAt)}`;
-    if (!T.paused){ tEnd = T.endAt; tTotal = T.total/60000; }
-    if (!T.paused && left <= 0){ T = { ...T, mode:"done" }; beep(); tickTimer(); }
-    return;
-  }
-  // stopwatch
-  const el = T.paused ? T.acc : now - T.startAt;
-  d.textContent = fmtT(el);
-  d.className = "tbig " + (T.paused ? "paused" : "up");
-  lbl.textContent = T.paused ? "Stopwatch paused" : `Stopwatch · started ${hm(T.firstStart)}`;
+  const d=$("#tDisp"), lbl=$("#tLbl"), n=Date.now();
+  $("#tIdle").style.display = T.mode==="idle" ? "grid" : "none"; $("#tRun").style.display = T.mode==="idle" ? "none" : "grid";
+  $("#tPause").style.display = T.mode==="done" ? "none" : "block"; $("#tRun").style.gridTemplateColumns = T.mode==="done" ? "1fr" : "";
+  $("#tStop").textContent = T.mode==="done" ? "Dismiss" : "Stop";
+  $("#tPause").textContent = T.paused ? "Resume" : "Pause"; $("#tPause").classList.toggle("go", !!T.paused);
+  let bar = 0;
+  if (T.mode==="idle"){ d.textContent="00:00"; d.className="tbig"; lbl.textContent="Pick a time, or ⏱ to time a task"; }
+  else if (T.mode==="done"){ d.textContent="DONE"; d.className="tbig done"; lbl.textContent=`${Math.round(T.total/60000)} min timer finished`; }
+  else if (T.mode==="down"){ const left = T.paused ? T.left : T.endAt - n; bar = Math.max(0,left/T.total);
+    d.textContent = fmtT(left); d.className = "tbig " + (T.paused?"paused":"run");
+    lbl.textContent = T.paused ? `Paused · ${fmtT(left)} left` : `${Math.round(T.total/60000)} min · ends ${hm(T.endAt)}`;
+    if (!T.paused && left <= 0){ T.mode="done"; beep(); log(`Timer finished (${Math.round(T.total/60000)} min)`); } }
+  else { const el = T.paused ? T.acc : n - T.startAt; d.textContent = fmtT(el); d.className = "tbig " + (T.paused?"paused":"up");
+    lbl.textContent = T.paused ? "Stopwatch paused" : `Stopwatch · started ${hm(T.first)}`; }
+  $("#tBar").style.width = (bar*100).toFixed(2) + "%";
 }
-document.querySelectorAll(".tb[data-m]").forEach(b => b.onclick = () => {
-  const total = +b.dataset.m * 60000; T = { mode:"down", total, endAt: Date.now() + total, paused:false }; tickTimer(); });
-$("#tSw").onclick = () => { const n = Date.now(); T = { mode:"up", startAt:n, firstStart:n, paused:false, acc:0 }; tickTimer(); };
-$("#tPause").onclick = () => {
-  const n = Date.now();
-  if (!T.paused){ if (T.mode === "down") T.left = T.endAt - n; else T.acc = n - T.startAt; T.paused = true; }
-  else { if (T.mode === "down") T.endAt = n + T.left; else T.startAt = n - T.acc; T.paused = false; }
-  tickTimer();
-};
-$("#tStop").onclick = () => { T = { mode:"idle" }; tickTimer(); };
+document.querySelectorAll(".tb[data-m]").forEach(b => b.onclick = () => { const total=+b.dataset.m*60000; T={mode:"down",total,endAt:Date.now()+total,paused:false}; tickTimer(); });
+$("#tSw").onclick = () => { const n=Date.now(); T={mode:"up",startAt:n,first:n,paused:false,acc:0}; tickTimer(); };
+$("#tPause").onclick = () => { const n=Date.now();
+  if (!T.paused){ if (T.mode==="down") T.left=T.endAt-n; else T.acc=n-T.startAt; T.paused=true; }
+  else { if (T.mode==="down") T.endAt=n+T.left; else T.startAt=n-T.acc; T.paused=false; } tickTimer(); };
+$("#tStop").onclick = () => { if (T.mode==="up") log(`Stopwatch stopped at ${$("#tDisp").textContent}`); T={mode:"idle"}; tickTimer(); };
+
+/* ============================================================
+   CONSTELLATION — canvas drawing
+   ============================================================ */
+const cv = $("#cv"), ctx = cv.getContext("2d");
+let W=0, H=0, DPR=1, bgCanvas=null, stars=[], nodes=[], orbitBase=0, hoverId=null;
+const spriteCache = {};
+function sprite(color, size){                    // soft glow dot, cached
+  const k = color + size; if (spriteCache[k]) return spriteCache[k];
+  const c = document.createElement("canvas"); c.width = c.height = size; const g = c.getContext("2d");
+  const gr = g.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
+  gr.addColorStop(0, color); gr.addColorStop(.25, color + "88"); gr.addColorStop(1, color + "00");
+  g.fillStyle = gr; g.fillRect(0,0,size,size); return spriteCache[k] = c;
+}
+function resize(){
+  const r = cv.getBoundingClientRect(); DPR = Math.min(window.devicePixelRatio||1, 2);
+  W = r.width; H = r.height; cv.width = W*DPR; cv.height = H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0);
+  bgCanvas = document.createElement("canvas"); bgCanvas.width = cv.width; bgCanvas.height = cv.height;
+  const b = bgCanvas.getContext("2d"); b.scale(DPR,DPR);
+  [["#5b2cff",.18,.25,.55],["#00b8d9",.82,.3,.5],["#ff7a1a",.5,.55,.35],["#1f6dff",.2,.85,.45],["#b14dff",.85,.85,.4]].forEach(([c,x,y,r]) => {
+    const gr = b.createRadialGradient(W*x,H*y,0,W*x,H*y,Math.max(W,H)*r); gr.addColorStop(0,c+"30"); gr.addColorStop(1,c+"00"); b.fillStyle = gr; b.fillRect(0,0,W,H); });
+  stars = Array.from({length: Math.round(W*H/2600)}, () => ({ x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.3+.2, p:Math.random()*6.28, s:Math.random()*.6+.2 }));
+  layoutNodes(); draw(performance.now());
+}
+// core: points on a sphere, joined to their neighbors
+const CORE = (() => { const N = 150, pts = [], ga = Math.PI*(3-Math.sqrt(5));
+  for (let i=0;i<N;i++){ const y = 1-2*(i+.5)/N, r = Math.sqrt(1-y*y), t = i*ga; pts.push([Math.cos(t)*r, y, Math.sin(t)*r]); }
+  const pairs = []; for (let i=0;i<N;i++) for (let j=i+1;j<N;j++){ const d = Math.hypot(pts[i][0]-pts[j][0],pts[i][1]-pts[j][1],pts[i][2]-pts[j][2]); if (d < .34) pairs.push([i,j]); }
+  return { pts, pairs }; })();
+const ICO = (() => { const f=(1+Math.sqrt(5))/2, v=[[-1,f,0],[1,f,0],[-1,-f,0],[1,-f,0],[0,-1,f],[0,1,f],[0,-1,-f],[0,1,-f],[f,0,-1],[f,0,1],[-f,0,-1],[-f,0,1]];
+  const e=[]; for(let i=0;i<12;i++)for(let j=i+1;j<12;j++){ if (Math.abs(Math.hypot(v[i][0]-v[j][0],v[i][1]-v[j][1],v[i][2]-v[j][2])-2) < .01) e.push([i,j]); }
+  const n = Math.hypot(1,f); return { v:v.map(p=>p.map(c=>c/n)), e }; })();
+function rot([x,y,z], ay, ax){ const cy=Math.cos(ay), sy=Math.sin(ay); let X=x*cy+z*sy, Z=-x*sy+z*cy; const cx=Math.cos(ax), sx=Math.sin(ax); return [X, y*cx-Z*sx, y*sx+Z*cx]; }
+function layoutNodes(){
+  const list = S.jobs.filter(onMap).sort((a,b)=>a.num.localeCompare(b.num));
+  nodes = list.map((j,i) => ({ id:j.id, a0: -Math.PI/2 + i*2*Math.PI/Math.max(1,list.length), spin: Math.random()*6, x:0, y:0, r:16 }));
+}
+function wrap(text, max, font){ ctx.font = font; const words = text.split(" "), lines=[]; let cur="";
+  for (const w of words){ const t = cur ? cur+" "+w : w; if (ctx.measureText(t).width > max && cur){ lines.push(cur); cur = w; } else cur = t; }
+  if (cur) lines.push(cur); if (lines.length > 2){ lines.length = 2; lines[1] = lines[1].replace(/\s*\S*$/,"") + "…"; } return lines; }
+function draw(now){
+  if (!bgCanvas || !W) return;
+  const t = now/1000, fx = S.fx;
+  ctx.clearRect(0,0,W,H); ctx.drawImage(bgCanvas,0,0,W,H);
+  const cx = W*.5, cy = H*.42, rx = Math.min(W*.37, W/2-110), ry = Math.min(H*.27, H/2-90), R = Math.min(W,H)*.12;
+  // stars
+  ctx.globalCompositeOperation = "lighter";
+  for (const s of stars){ if (fx){ s.x -= s.s*.08; if (s.x < 0) s.x += W; }
+    const a = .35 + .35*Math.sin(t*s.s*2 + s.p); ctx.fillStyle = `rgba(190,235,255,${a})`; ctx.fillRect(s.x, s.y, s.r, s.r); }
+  // orbit rings
+  ctx.globalCompositeOperation = "source-over";
+  [[1,.22,"0,229,255"],[.78,.14,"168,139,255"],[1.18,.1,"255,179,64"]].forEach(([k,a,c],i) => {
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate((i-1)*.12 + (fx? t*.02*(i%2?1:-1) : 0));
+    ctx.setLineDash([2,7]); ctx.lineDashOffset = fx ? -t*12*(i+1) : 0; ctx.strokeStyle = `rgba(${c},${a})`; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.ellipse(0,0,rx*k,ry*k,0,0,Math.PI*2); ctx.stroke(); ctx.restore(); });
+  ctx.setLineDash([]);
+  // node positions
+  if (fx) orbitBase += .0006;
+  nodes.forEach(n => { const a = n.a0 + orbitBase; n.x = cx + Math.cos(a)*rx; n.y = cy + Math.sin(a)*ry;
+    const o = openFor(n.id); n.r = 14 + Math.min(o,8)*2.4; });
+  // trails core -> node, with flowing particles
+  ctx.globalCompositeOperation = "lighter";
+  nodes.forEach((n,i) => { const j = jobById(n.id); if (!j) return; const col = STC[j.status];
+    const mx = (cx+n.x)/2, my = (cy+n.y)/2, dx = n.x-cx, dy = n.y-cy, k = .22*(i%2?1:-1), qx = mx - dy*k, qy = my + dx*k;
+    const g = ctx.createLinearGradient(cx,cy,n.x,n.y); g.addColorStop(0,"rgba(255,170,80,.5)"); g.addColorStop(1,col+"aa");
+    ctx.strokeStyle = g; ctx.lineWidth = n.id===S.selected ? 2.2 : 1.2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.quadraticCurveTo(qx,qy,n.x,n.y); ctx.stroke();
+    if (fx) for (let p=0;p<3;p++){ const u = ((t*.25 + p/3 + i*.13) % 1), iu = 1-u;
+      const px = iu*iu*cx + 2*iu*u*qx + u*u*n.x, py = iu*iu*cy + 2*iu*u*qy + u*u*n.y; ctx.drawImage(sprite(col,18), px-9, py-9, 18, 18); } });
+  // core sphere
+  ctx.drawImage(sprite("#ff9a3c", Math.round(R*5)), cx-R*2.5, cy-R*2.5, R*5, R*5);
+  ctx.drawImage(sprite("#ffffff", Math.round(R*1.6)), cx-R*.8, cy-R*.8, R*1.6, R*1.6);
+  const ay = fx ? t*.18 : .6, ax = .35, P = CORE.pts.map(p => rot(p, ay, ax));
+  ctx.lineWidth = .7;
+  for (const [i,j] of CORE.pairs){ const a=P[i], b=P[j], z=(a[2]+b[2])/2; const al = .12 + (z+1)*.22;
+    ctx.strokeStyle = z > 0 ? `rgba(255,200,120,${al})` : `rgba(150,120,255,${al*.8})`; ctx.beginPath(); ctx.moveTo(cx+a[0]*R, cy+a[1]*R); ctx.lineTo(cx+b[0]*R, cy+b[1]*R); ctx.stroke(); }
+  for (const p of P){ const s = 1.2 + (p[2]+1)*.9; ctx.fillStyle = p[2] > 0 ? "rgba(255,235,200,.9)" : "rgba(170,150,255,.6)"; ctx.fillRect(cx+p[0]*R-s/2, cy+p[1]*R-s/2, s, s); }
+  ctx.globalCompositeOperation = "source-over";
+  ctx.textAlign = "center"; ctx.fillStyle = "#ffd59a"; ctx.font = `700 ${Math.max(10,R*.16)}px Orbitron`; ctx.shadowColor = "#ff9a3c"; ctx.shadowBlur = 10;
+  ctx.fillText("APG CORE", cx, cy + R + 22); ctx.shadowBlur = 0;
+  ctx.fillStyle = "rgba(255,213,154,.6)"; ctx.font = `600 ${Math.max(10,R*.15)}px Rajdhani`; ctx.fillText(`${nodes.length} ACTIVE OPS`, cx, cy + R + 38);
+  // job nodes
+  nodes.forEach(n => { const j = jobById(n.id); if (!j) return; const col = STC[j.status], sel = n.id === S.selected, hov = n.id === hoverId;
+    ctx.globalCompositeOperation = "lighter";
+    ctx.drawImage(sprite(col, 160), n.x - n.r*2.6, n.y - n.r*2.6, n.r*5.2, n.r*5.2);
+    if (sel) ctx.drawImage(sprite(col, 160), n.x - n.r*3.4, n.y - n.r*3.4, n.r*6.8, n.r*6.8);
+    // wireframe gem
+    const sa = fx ? t*.6 + n.spin : n.spin, V = ICO.v.map(p => rot(p, sa, .5));
+    ctx.strokeStyle = col; ctx.lineWidth = sel ? 1.6 : 1.1; ctx.beginPath();
+    for (const [a,b] of ICO.e){ ctx.moveTo(n.x+V[a][0]*n.r, n.y+V[a][1]*n.r); ctx.lineTo(n.x+V[b][0]*n.r, n.y+V[b][1]*n.r); } ctx.stroke();
+    ctx.drawImage(sprite("#ffffff", 40), n.x-8, n.y-8, 16, 16);
+    // open punch items as orbiting satellites
+    const open = S.punch.filter(p => p.job === n.id && !p.done).length;
+    for (let k=0;k<Math.min(open,10);k++){ const a = (fx ? t*.5 : 0) + k*2*Math.PI/Math.min(open,10), rr = n.r + 13;
+      const sx = n.x + Math.cos(a)*rr, sy = n.y + Math.sin(a)*rr*.85; ctx.drawImage(sprite(col, 20), sx-6, sy-6, 12, 12); }
+    ctx.globalCompositeOperation = "source-over";
+    if (sel || hov){ ctx.save(); ctx.translate(n.x,n.y); ctx.rotate(fx ? t*.4 : 0); ctx.setLineDash([4,6]); ctx.strokeStyle = col; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.arc(0,0,n.r+24,0,Math.PI*2); ctx.stroke(); ctx.restore(); ctx.setLineDash([]); }
+    // label
+    const ly = n.y + n.r + 30;
+    ctx.textAlign = "center"; ctx.shadowColor = col; ctx.shadowBlur = sel ? 14 : 8;
+    ctx.fillStyle = "#eafcff"; ctx.font = `700 ${sel?17:15}px Orbitron`; ctx.fillText(j.num, n.x, ly); ctx.shadowBlur = 0;
+    const lines = wrap(j.name, 170, "600 13px Rajdhani"); ctx.fillStyle = sel ? "#cdeff7" : "rgba(170,215,228,.85)";
+    lines.forEach((l,i) => ctx.fillText(l, n.x, ly + 16 + i*14));
+    ctx.fillStyle = col; ctx.font = "700 9px Orbitron";
+    ctx.fillText(open ? `${open} OPEN · ${j.status.toUpperCase()}` : `CLEAR · ${j.status.toUpperCase()}`, n.x, ly + 18 + lines.length*14 + 2);
+  });
+  if (!nodes.length){ ctx.fillStyle = "#76b8c8"; ctx.font = "600 15px Rajdhani"; ctx.textAlign = "center"; ctx.fillText("No Active or Punch jobs — tap + JOB", cx, cy + R + 70); }
+}
+function hit(e){ const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  let best = null, bd = 1e9; nodes.forEach(n => { const d = Math.hypot(n.x-x, n.y-y); if (d < n.r + 34 && d < bd){ bd = d; best = n; } }); return best; }
+cv.addEventListener("pointerdown", e => { const n = hit(e); if (n) select(n.id); });
+cv.addEventListener("pointermove", e => { const n = hit(e); hoverId = n ? n.id : null; cv.style.cursor = n ? "pointer" : "default"; });
+let last = 0;
+function loop(now){ if (!tilesOn && (S.fx || now - last > 1000)){ draw(now); last = now; } requestAnimationFrame(loop); }
+new ResizeObserver(resize).observe(cv);
 
 /* ============================================================
    SPOTIFY — remote control for whatever Spotify is playing
    (sign-in uses Spotify's "PKCE" method: no password or secret
     is ever stored here, only a temporary pass from Spotify)
    ============================================================ */
-const SPKEY = KEY + ".spotify";
+const SPKEY = "apgHub.v1.spotify";   // shared with the classic hub, so your sign-in carries over
 let SPS = { clientId:"", access:"", refresh:"", exp:0 };
 try { Object.assign(SPS, JSON.parse(localStorage.getItem(SPKEY)) || {}); } catch(e){}
 function spSave(){ try { localStorage.setItem(SPKEY, JSON.stringify(SPS)); } catch(e){} }
@@ -788,118 +738,60 @@ async function spDo(a){
 document.addEventListener("visibilitychange", () => { if (!document.hidden) spPoll(); });
 
 /* ============================================================
-   DAILY QUOTE — a new one each day; tap for another.
-   One quote per line in Settings. Add " — Name" to credit
-   someone else; otherwise it's credited to John C. Maxwell.
+   SETTINGS — weather, quotes, motion, Spotify
    ============================================================ */
-function parseQuote(line){
-  const m = line.match(/^(.*\S)\s+[—–]\s+(.+)$/) || line.match(/^(.*\S)\s+--\s+(.+)$/);
-  return m ? { q: m[1], a: m[2] } : { q: line, a: "John C. Maxwell" };
+function copy(text, msg){
+  (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
+    .then(() => toast(msg || "COPIED")).catch(() => toast("COULDN'T COPY"));
 }
-function renderQuote(){
-  const list = (S.quotes || []).map(x => x.trim()).filter(Boolean);
-  if (!list.length){ $("#qt").textContent = ""; $("#qa").textContent = ""; return; }
-  const d = new Date(), day = Math.floor((d - new Date(d.getFullYear(),0,0)) / 864e5);
-  const { q, a } = parseQuote(list[(day + (S.quoteBump||0)) % list.length]);
-  $("#qt").textContent = "\u201C" + q.replace(/^["\u201C]|["\u201D]$/g,"") + "\u201D";
-  $("#qa").textContent = "— " + a;
-}
-$("#quote").onclick = () => { S.quoteBump = (S.quoteBump||0) + 1; save(); renderQuote(); };
-let quoteDay = new Date().toDateString();
-setInterval(() => { const t = new Date().toDateString(); if (t !== quoteDay){ quoteDay = t; renderQuote(); } }, 60000);
-
-/* ============================================================
-   SETTINGS (weather location)
-   ============================================================ */
-$("#gear").onclick = () => openModal(`<h3>Settings</h3>
-  <div class="fld"><label>WEATHER LOCATION NAME</label><input id="wN" value="${esc(S.weather.name)}"></div>
+$("#gear").onclick = () => openModal(`<h3>SETTINGS</h3>
+  <h4>WEATHER</h4>
+  <div class="fld"><label>LOCATION NAME</label><input id="wN" value="${esc(S.weather.name)}"></div>
   <div class="row2"><div class="fld"><label>LATITUDE</label><input id="wA" value="${S.weather.lat}"></div>
     <div class="fld"><label>LONGITUDE</label><input id="wO" value="${S.weather.lon}"></div></div>
-  <div class="hint">Tip: right-click any spot in Google Maps — the first line is latitude, longitude.</div>
-  <h3 style="margin-top:20px;font-size:1em">Daily quotes</h3>
-  <div class="fld"><textarea id="qList" style="min-height:140px">${esc((S.quotes||[]).join("\n"))}</textarea>
-    <div class="hint">One quote per line. To credit someone other than John C. Maxwell, end the line with " — Name".</div></div>
-  <h3 style="margin-top:20px;font-size:1em">Look</h3>
-  <div class="row2"><div class="fld"><label>THEME</label><select id="thSel">
-      <option value="hud" ${S.theme==="hud"?"selected":""}>HUD (futuristic)</option><option value="clean" ${S.theme!=="hud"?"selected":""}>Clean</option></select></div>
-    <div class="fld"><label>MOTION EFFECTS</label><select id="fxSel">
-      <option value="high" ${S.fx!=="low"?"selected":""}>On</option><option value="low" ${S.fx==="low"?"selected":""}>Off (calmer)</option></select></div></div>
-  <h3 style="margin-top:20px;font-size:1em">Spotify</h3>
-  <div class="fld"><label>SHOW SPOTIFY PANEL</label><select id="spShow">
-    <option value="off" ${!S.showSpotify?"selected":""}>Off (use the Spotify app)</option><option value="on" ${S.showSpotify?"selected":""}>On</option></select></div>
+  <div class="hint">Tip: right-click a spot in Google Maps — the first line is latitude, longitude.</div>
+  <h4>DAILY QUOTES</h4>
+  <div class="fld"><textarea id="qList" style="min-height:120px">${esc(S.quotes.join("\n"))}</textarea>
+    <div class="hint">One per line. End a line with " — Name" to credit someone other than John C. Maxwell.</div></div>
+  <h4>LOOK</h4>
+  <div class="row2"><div class="fld"><label>MOTION EFFECTS</label><select id="fxSel"><option value="on" ${S.fx?"selected":""}>On</option><option value="off" ${!S.fx?"selected":""}>Off (calmer)</option></select></div>
+    <div class="fld"><label>CLASSIC LAYOUT</label><a class="btn" href="classic.html" style="display:flex;align-items:center;justify-content:center;text-decoration:none;color:var(--dim)">OPEN CLASSIC</a></div></div>
+  <h4>SPOTIFY</h4>
+  <div class="fld"><label>SHOW SPOTIFY PANEL</label><select id="spShow"><option value="off" ${!S.showSpotify?"selected":""}>Off (use the Spotify app)</option><option value="on" ${S.showSpotify?"selected":""}>On</option></select></div>
   <div class="fld"><label>SPOTIFY CLIENT ID</label><input id="spId" value="${esc(SPS.clientId)}" placeholder="From developer.spotify.com"></div>
-  <div class="fld"><label>REDIRECT URI (paste this into your Spotify app)</label><div class="path">${esc(spRedirect())}</div>
-    <div class="acts" style="margin-top:8px"><button class="btn" id="spCopy">Copy redirect URI</button>
-    ${SPS.access ? `<button class="btn" id="spOut">Disconnect Spotify</button>` : ""}</div>
-    ${location.protocol === "file:" ? `<div class="hint" style="color:var(--amber)">This copy is opened as a file, so Spotify sign-in can't work here. Use the hosted version.</div>` : ""}</div>
-  <div class="acts"><button class="btn del" id="r">Reset everything</button><button class="btn" id="c">Cancel</button><button class="btn pri" id="s">Save</button></div>`, m => {
+  <div class="fld"><label>REDIRECT URI</label><div class="path">${esc(spRedirect())}</div></div>
+  <div class="acts" style="margin-top:6px"><button class="btn" id="spCopy">COPY REDIRECT URI</button>${SPS.access ? `<button class="btn" id="spOut">DISCONNECT</button>` : ""}</div>
+  <div class="acts"><button class="btn" id="c" style="margin-left:auto">CANCEL</button><button class="btn pri" id="s">SAVE</button></div>`, m => {
     m.querySelector("#c").onclick = closeModal;
-    m.querySelector("#spCopy").onclick = () => copy(spRedirect(), "Redirect URI copied");
+    m.querySelector("#spCopy").onclick = () => copy(spRedirect(), "REDIRECT URI COPIED");
     const so = m.querySelector("#spOut"); if (so) so.onclick = () => { spClear(); renderSpotify(); closeModal(); };
-    m.querySelector("#r").onclick = () => { const b=m.querySelector("#r");
-      if (b.dataset.sure){ S = structuredClone(DEFAULTS); save(); renderAll(); loadWeather(); closeModal(); }
-      else { b.dataset.sure=1; b.textContent="Tap again to reset"; } };
     m.querySelector("#s").onclick = () => {
       const lat = parseFloat(m.querySelector("#wA").value), lon = parseFloat(m.querySelector("#wO").value);
-      if (isNaN(lat) || isNaN(lon)) return toast("Latitude/longitude need to be numbers");
+      if (isNaN(lat) || isNaN(lon)) return toast("LAT / LONG MUST BE NUMBERS");
       S.weather = { name: m.querySelector("#wN").value.trim() || "Weather", lat, lon };
-      S.theme = m.querySelector("#thSel").value; S.fx = m.querySelector("#fxSel").value; S.showSpotify = m.querySelector("#spShow").value === "on"; applyTheme();
-      S.quotes = m.querySelector("#qList").value.split("\n").map(x => x.trim()).filter(Boolean); renderQuote();
-      save(); loadWeather();
+      S.quotes = m.querySelector("#qList").value.split("\n").map(x => x.trim()).filter(Boolean);
+      if (!S.quotes.length) S.quotes = QUOTES.slice();
+      S.fx = m.querySelector("#fxSel").value === "on";
+      S.showSpotify = m.querySelector("#spShow").value === "on";
       const id = m.querySelector("#spId").value.trim();
       if (id !== SPS.clientId){ spClear(); SPS.clientId = id; spSave(); }
-      renderSpotify(); closeModal();
+      save(); applyFx(); loadWeather(); renderQuote(); renderSpotify(); spPoll(); closeModal();
     };
   });
 
 /* ============================================================
-   LOOK — clean vs HUD, motion on/off, boot-up sequence
-   ============================================================ */
-(function buildEq(){                       // the audio meter is a visual effect — Spotify doesn't share real sound levels
-  const eq = $("#eq"); let h = "";
-  for (let i = 0; i < 32; i++){
-    const hh = (0.35 + Math.abs(Math.sin(i * 1.7)) * 0.65).toFixed(2), dd = (0.35 + ((i * 37) % 11) / 18).toFixed(2);
-    h += `<span style="--h:${hh};--d:${dd}s"></span>`;
-  }
-  eq.innerHTML = h;
-})();
-function applyTheme(){
-  document.body.classList.toggle("nosp", !S.showSpotify);
-  if (S.showSpotify) spPoll();
-  document.body.classList.toggle("hud", S.theme === "hud");
-  document.body.classList.toggle("fx", S.theme === "hud" && S.fx !== "low");
-}
-function boot(){
-  if (!(S.theme === "hud" && S.fx !== "low")) return;
-  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const b = document.createElement("div"); b.id = "boot";
-  const lines = ["CORE SYSTEMS", "JOB DATABASE", "WEATHER UPLINK", "AUDIO LINK", "CHRONOMETER"];
-  b.innerHTML = `<div class="t">APG COMMAND HUB</div>` +
-    lines.map((l,i) => `<div class="l" style="animation-delay:${0.15 + i*0.18}s">${l} ······ <b>ONLINE</b></div>`).join("") +
-    `<div class="bar"><i></i></div>`;
-  document.body.appendChild(b);
-  setTimeout(() => { b.style.opacity = "0"; setTimeout(() => b.remove(), 500); }, 1600);
-}
-$("#thBtn").onclick = () => { S.theme = S.theme === "hud" ? "clean" : "hud"; save(); applyTheme(); boot(); };
-setInterval(() => {
-  const bar = $("#tBar");
-  const left = T.mode === "down" ? (T.paused ? T.left : T.endAt - Date.now()) : 0;
-  bar.style.width = T.mode === "down" ? (Math.max(0, left / T.total) * 100).toFixed(2) + "%" : "0%";
-}, 250);
-
-/* ============================================================
    START
    ============================================================ */
-function renderAll(){ renderToday(); renderJobs(); renderPunch(); tickTimer(); renderSpotify(); renderQuote(); }
-applyTheme(); boot();
-tickClock(); renderAll(); loadWeather();
+function applyFx(){ document.body.classList.toggle("nosp", !S.showSpotify); $("#fxBtn").classList.toggle("off", !S.fx); document.querySelectorAll(".ring .r1,.ring .r4").forEach(e => e.style.animationPlayState = S.fx ? "running" : "paused"); }
+$("#fxBtn").onclick = () => { S.fx = !S.fx; save(); applyFx(); toast(S.fx ? "MOTION ON" : "MOTION OFF"); };
+function refreshAll(){ renderSignals(); renderTodo(); renderJob(); renderFeed(); renderHealth(); if (tilesOn) renderTiles(); }
+if (!S.feed.length){ S.feed = [{t:"--:--",h:"Command Hub online"}]; }
+applyFx(); tickClock(); renderQuote(); refreshAll(); loadWeather(); layoutNodes();
+setInterval(tickClock, 1000); setInterval(tickTimer, 250); setInterval(renderHealth, 2000); setInterval(loadWeather, 15*60*1000);
+tickTimer(); requestAnimationFrame(loop);
 spHandleReturn().then(() => { renderSpotify(); spPoll(); });
-setInterval(tickClock, 1000);
 setInterval(spPoll, 5000);
-setInterval(() => { if (spState && spState.is_playing) renderSpotify(); }, 1000);
-setInterval(tickTimer, 250);
-setInterval(renderToday, 30000);
-setInterval(loadWeather, 15*60*1000);
+setInterval(() => { if (S.showSpotify && spState && spState.is_playing) renderSpotify(); }, 1000);
 </script>
 </body>
 </html>
